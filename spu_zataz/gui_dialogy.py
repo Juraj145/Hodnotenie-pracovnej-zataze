@@ -410,7 +410,7 @@ class AktualizaciaDialog(tk.Toplevel):
         self.lbl.pack(anchor="w")
         b = ttk.Frame(f)
         b.pack(fill="x", pady=(8, 0))
-        if updater.je_exe() and v.url_exe:
+        if updater.vie_aktualizovat(v):
             self.btn = ttk.Button(b, text="Aktualizovať teraz", style="Accent.TButton", command=self.aktualizuj)
         else:
             self.btn = ttk.Button(b, text="Otvoriť stránku na stiahnutie", style="Accent.TButton",

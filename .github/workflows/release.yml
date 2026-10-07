@@ -62,11 +62,33 @@ jobs:
           if (-not (Test-Path (Join-Path $dir "SPU-Zataz.exe"))) { throw "Chýba SPU-Zataz.exe po výmene." }
           Get-ChildItem $dir | Format-Table Name, Length
 
-      - name: Kontrolný súčet
+      - name: Balík pre spustenie cez Python
+        run: |
+          pip install --target build/lib openpyxl
+          python tools/zostav_balik.py build/lib dist/SPU-Zataz-python.zip
+
+      - name: Test aktualizácie balíka pre Python
         shell: pwsh
         run: |
-          $h = (Get-FileHash dist/SPU-Zataz.exe -Algorithm SHA256).Hash.ToLower()
-          "$h  SPU-Zataz.exe" | Set-Content -NoNewline -Encoding ascii dist/SPU-Zataz.exe.sha256
+          $dir = Join-Path $env:RUNNER_TEMP "pyinst"
+          Expand-Archive dist/SPU-Zataz-python.zip -DestinationPath $dir -Force
+          $marker = Join-Path $env:RUNNER_TEMP "vysledok-py.txt"
+          $zip = (Resolve-Path dist/SPU-Zataz-python.zip).Path
+          python (Join-Path $dir "SPU-Zataz.pyw") --test-aktualizacie $marker $zip
+          for ($i = 0; $i -lt 60 -and -not (Test-Path $marker); $i++) { Start-Sleep -Seconds 1 }
+          if (-not (Test-Path $marker)) { throw "Nová verzia sa po aktualizácii nespustila." }
+          Get-Content $marker
+          if (-not (Select-String -Path $marker -Pattern "rezim=python" -Quiet)) { throw "Nesprávny režim." }
+          if (-not (Select-String -Path $marker -Pattern "upratane=True" -Quiet)) { throw "Stará verzia nebola zmazaná." }
+          Get-ChildItem $dir | Format-Table Name
+
+      - name: Kontrolné súčty
+        shell: pwsh
+        run: |
+          foreach ($f in "SPU-Zataz.exe", "SPU-Zataz-python.zip") {
+            $h = (Get-FileHash "dist/$f" -Algorithm SHA256).Hash.ToLower()
+            "$h  $f" | Set-Content -NoNewline -Encoding ascii "dist/$f.sha256"
+          }
 
       - name: Zverejnenie vydania
         uses: softprops/action-gh-release@v2
@@ -74,6 +96,11 @@ jobs:
           tag_name: v${{ steps.ver.outputs.verzia }}
           name: Verzia ${{ steps.ver.outputs.verzia }}
           generate_release_notes: true
+          body: |
+            **Inštalácia (odporúčané):** stiahnite `SPU-Zataz-python.zip`, rozbaľte ho a spustite `SPU-Zataz.pyw` (potrebný Python z python.org). Návod je v súbore NAVOD.txt.
+            `SPU-Zataz.exe` funguje iba tam, kde ho nezablokuje inteligentné riadenie aplikácií (nie je digitálne podpísaný).
           files: |
+            dist/SPU-Zataz-python.zip
+            dist/SPU-Zataz-python.zip.sha256
             dist/SPU-Zataz.exe
             dist/SPU-Zataz.exe.sha256

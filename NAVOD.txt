@@ -1,0 +1,28 @@
+HODNOTENIE PRACOVNEJ ZÁŤAŽE VŠ UČITEĽOV – SPU v Nitre
+Spustenie cez Python (funguje aj pri zapnutom „Inteligentnom riadení aplikácií“ vo Windows 11)
+
+1. NAINŠTALUJTE PYTHON (iba raz)
+   - Otvorte https://www.python.org/downloads/ a stiahnite „Download Python 3.x“.
+   - Spustite inštalátor a kliknite na „Install Now“ (ponechajte predvolené voľby;
+     musí byť zahrnuté „tcl/tk and IDLE“ a „py launcher“ – predvolene sú).
+   - Práva správcu nie sú potrebné.
+
+2. ROZBAĽTE PROGRAM
+   - Súbor SPU-Zataz-python.zip rozbaľte (pravé tlačidlo → Extrahovať všetko),
+     napr. do priečinka Dokumenty\SPU-Zataz.
+
+3. SPUSTITE
+   - Dvakrát kliknite na SPU-Zataz.pyw.
+   - Ak sa súbor otvorí v textovom editore: pravé tlačidlo → Otvoriť pomocou →
+     Python (alebo „Python Launcher for Windows (GUI)“) → Vždy použiť túto aplikáciu.
+   - Odkaz na plochu: pravé tlačidlo na SPU-Zataz.pyw → Zobraziť ďalšie možnosti →
+     Odoslať do → Pracovná plocha (vytvoriť odkaz).
+
+AKTUALIZÁCIE
+   Program pri spustení skontroluje novú verziu na GitHube a ponúkne „Aktualizovať teraz“.
+   Stiahne nový balík, overí kontrolný súčet, vymení súbory v tomto priečinku a reštartuje sa.
+
+ÚDAJE
+   Vaše údaje sú uložené oddelene v %APPDATA%\SPU-Zataz a aktualizácia ich nemení.
+
+Ak sa program nespustí, pozrite súbor chyba.log v tomto priečinku.

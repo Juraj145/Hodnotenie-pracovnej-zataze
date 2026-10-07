@@ -6,15 +6,21 @@ v znení Dodatku č. 2** (účinný od 1. 7. 2025).
 
 ## Pre používateľov
 
-### Inštalácia
-1. Na stránke [Releases](https://github.com/Juraj145/Hodnotenie-pracovnej-zataze/releases/latest) stiahnite `SPU-Zataz.exe`.
-2. Uložte ho napr. do `Dokumenty\SPU-Zataz\` a spustite. Inštalácia ani práva správcu nie sú potrebné.
-3. Pri prvom spustení môže Windows SmartScreen zobraziť upozornenie (súbor nie je digitálne podpísaný):
-   **Ďalšie informácie → Spustiť aj tak**.
+### Inštalácia (odporúčaný spôsob – cez Python)
+Windows 11 s inteligentným riadením aplikácií blokuje nepodpísaný `SPU-Zataz.exe`. Program sa preto
+spúšťa cez nainštalovaný Python, ktorý je podpísaný:
+1. Nainštalujte Python z [python.org/downloads](https://www.python.org/downloads/) („Install Now“, predvolené voľby).
+2. Na stránke [Releases](https://github.com/Juraj145/Hodnotenie-pracovnej-zataze/releases/latest) stiahnite
+   `SPU-Zataz-python.zip` a rozbaľte ho, napr. do `Dokumenty\SPU-Zataz\`.
+3. Spustite dvojklikom `SPU-Zataz.pyw`. Podrobnosti sú v súbore `NAVOD.txt` v balíku.
+
+`SPU-Zataz.exe` je k dispozícii pre počítače bez inteligentného riadenia aplikácií
+(SmartScreen: **Ďalšie informácie → Spustiť aj tak**).
 
 ### Aktualizácie
 Program pri každom spustení skontroluje, či je na GitHube novšia verzia. Ak áno, ponúkne
-**Aktualizovať teraz** – stiahne novú verziu, overí jej kontrolný súčet SHA-256, nahradí sa a reštartuje.
+**Aktualizovať teraz** – stiahne nový balík (alebo exe), overí jeho kontrolný súčet SHA-256, vymení súbory
+programu a reštartuje sa. Zostavenie na GitHube túto výmenu pred každým vydaním vyskúša na Windows.
 Kontrolu možno vypnúť v *Nastavenia → Kontrolovať aktualizácie pri spustení*, alebo spustiť ručne v *Pomoc*.
 
 ### Kde sú moje údaje
