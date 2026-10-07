@@ -14,6 +14,7 @@ Kvartil podľa CiteScore percentilu zo Scopusu sa dá zapnúť len ako orientač
 from __future__ import annotations
 
 import json
+import re
 import ssl
 import urllib.error
 import urllib.parse
@@ -54,11 +55,19 @@ def _get_json(url: str, headers: dict) -> dict:
     except urllib.error.HTTPError as e:
         detail = ""
         try:
-            detail = e.read().decode("utf-8", "replace")[:300]
+            detail = e.read().decode("utf-8", "replace")[:5000]
         except Exception:  # noqa: BLE001
             pass
+        if "cloudflare" in detail.lower() or "<html" in detail.lower():
+            ray = re.search(r"Ray ID:?\s*(?:<[^>]+>)*\s*([0-9a-f]{10,})", detail, re.I)
+            raise BiblioChyba(
+                f"Server {urllib.parse.urlparse(url).hostname} zablokoval pripojenie z vašej siete ({e.code}). "
+                "Nejde o chybu API kľúča – blokuje sa celá adresa, aj v prehliadači. Skúste to zo siete "
+                "univerzity alebo cez univerzitné VPN; ak to pretrváva, kontaktujte podporu služby"
+                + (f" (Ray ID {ray.group(1)})." if ray else "."))
         if e.code in (401, 403):
-            raise BiblioChyba(f"Prístup zamietnutý ({e.code}). Skontrolujte API kľúč a či ste v sieti univerzity. {detail}")
+            raise BiblioChyba(f"Prístup zamietnutý ({e.code}). Skontrolujte API kľúč a či ste v sieti univerzity. "
+                              f"{detail[:200]}")
         if e.code == 429:
             raise BiblioChyba("Prekročený limit požiadaviek API. Skúste to neskôr.")
         raise BiblioChyba(f"Chyba servera {e.code}: {detail}")
