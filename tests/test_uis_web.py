@@ -101,3 +101,44 @@ class TestZlucenie(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def _zp(zp, stav, typ, rok, ved_id, ved):
+    return (f'<tr class=""><td class="odsazena">TF</td><td class="odsazena">{stav}</td><td class="odsazena">{typ}</td>'
+            f'<td class="odsazena"><a href="/lide/clovek.pl?id=9{zp}">Bc. Študent {zp}</a></td>'
+            f'<td class="odsazena">Názov práce {zp}</td><td class="odsazena">{rok}</td>'
+            f'<td class="odsazena"><a href="/lide/clovek.pl?id={ved_id}">{ved}</a></td>'
+            f'<td class="odsazena"><a href="../pracoviste/pracoviste.pl?id=221;nerozbaluj=1">UEAIF TF</a></td>'
+            f'<td class="odsazena"></td><td class="odsazena"><a href="/zp/portal_zp.pl?zp={zp};zpet=;prehled=pracoviste">'
+            f'<span>Vstup</span></a></td></tr>')
+
+
+ZP_HTML = ('<table><tr><td><input type="checkbox" name="typ" value="1"> Bakalárska práca</td></tr></table>'
+           '<table><thead><tr><th>Fak.</th><th>Stav</th><th>Typ</th><th>Autor</th><th>Názov práce</th><th>Rok</th>'
+           '<th class="zahlavi" ><a href="/zp/portal_zp.pl?razeni=vedouci;prehled=pracoviste">Vedúci práce</a></th><th>Pracovisko</th><th>Odkladná lehota</th><th>Vstup</th></tr></thead><tbody>'
+           + _zp(1, "obhájená", "BP", 2024, 101, "prof. Ing. Anna Testová, PhD.")
+           + _zp(2, "obhájená", "DP", 2024, 101, "prof. Ing. Anna Testová, PhD.")
+           + _zp(3, "obhájená", "DP", 2025, 101, "prof. Ing. Anna Testová, PhD.")
+           + _zp(4, "nekompletné", "DP", 2025, 101, "prof. Ing. Anna Testová, PhD.")
+           + _zp(5, "obhájená", "DizP", 2025, 555, "doc. Ing. Ján Vzorový, PhD.")
+           + _zp(6, "obhájená", "BP", 2025, 777, "Ing. Cudzí Vedúci, PhD.")
+           + "</tbody></table>")
+
+
+class TestZaverecnePrace(unittest.TestCase):
+    def test_parsovanie_a_priradenie(self):
+        prace = uis_web.parsuj_zaverecne_prace(ZP_HTML)
+        self.assertEqual(len(prace), 6)
+        self.assertEqual((prace[0].ak_rok, prace[0].stupen, prace[0].veduci_id, prace[0].zp_id), ("2023/2024", "Bc", "101", "1"))
+        self.assertEqual(uis_web.obdobie_zo_ak_roku("2023/2024"), 2024)
+        db = Databaza(Path(tempfile.mkdtemp()) / "z.db")
+        db.uloz(Ucitel(osobne_cislo="101", meno="Testová Anna"))
+        db.uloz(Ucitel(meno="Vzorový Ján"))          # bez ID – nájde sa podľa mena
+        pr, mimo = uis_web.prirad_ucitelom(prace, db.nacitaj("ucitelia"))
+        self.assertEqual([(s.ak_rok, s.stupen, len(s.prace)) for s in pr if s.ucitel_id == 1],
+                         [("2023/2024", "Bc", 1), ("2023/2024", "Ing", 1), ("2024/2025", "Ing", 1)])
+        self.assertEqual([(s.stupen, len(s.prace)) for s in pr if s.ucitel_id == 2], [("PhD", 1)])
+        self.assertEqual(mimo, {"Ing. Cudzí Vedúci, PhD.": 1})
+        self.assertEqual(uis_web.uloz_zaverecne_prace(db, pr), 4)
+        uis_web.uloz_zaverecne_prace(db, pr)       # opakovane bez duplicít
+        self.assertEqual(len(db.nacitaj("zaverecne_prace")), 4)

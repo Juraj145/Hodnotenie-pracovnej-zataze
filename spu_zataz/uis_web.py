@@ -13,6 +13,7 @@ from __future__ import annotations
 import html as htmllib
 import re
 import ssl
+import urllib.parse
 import urllib.request
 from dataclasses import dataclass
 from typing import Optional
@@ -269,3 +270,140 @@ def zluc_do_databazy(db, polozky: list[tuple[Zamestnanec, str, str]]) -> Vysledo
         if (u.fakulta, u.ustav) in ustavy and u.osobne_cislo not in nacitane_id:
             res.chybajuci.append(u.cele_meno)
     return res
+
+
+# ------------------------------------------------------------------ záverečné práce (is.uniag.sk/zp/)
+
+TYP_ZP = {"BP": "Bc", "DP": "Ing", "DizP": "PhD"}
+ZP_ZNACKA = "[UIS ZP "
+
+
+@dataclass
+class ZaverecnaPracaUIS:
+    zp_id: str
+    stav: str
+    typ: str                 # BP / DP / DizP
+    nazov: str
+    rok: int                 # rok obhajoby = koniec akademického roka
+    veduci_id: str
+    veduci_meno: str
+    pracovisko: str
+
+    @property
+    def ak_rok(self) -> str:
+        return f"{self.rok - 1}/{self.rok}"
+
+    @property
+    def stupen(self) -> Optional[str]:
+        return TYP_ZP.get(self.typ)
+
+    @property
+    def obhajena(self) -> bool:
+        return self.stav.lower().startswith("obháj")
+
+
+def obdobie_zo_ak_roku(ak_rok: str) -> Optional[int]:
+    """„2023/2024“ → 2024 (UIS označuje obdobie rokom, v ktorom končí)."""
+    m = re.match(r"\s*(\d{4})\s*[/-]\s*(\d{2,4})", ak_rok or "")
+    if not m:
+        return None
+    return int(m.group(1)) + 1
+
+
+def parsuj_zaverecne_prace(html: str) -> list[ZaverecnaPracaUIS]:
+    out = []
+    # tabuľka výsledkov začína hlavičkou s „Vedúci práce“ (môže byť vnorená v rozložení stránky)
+    for m in re.finditer(r"<th[^>]*>\s*(?:<a[^>]*razeni=vedouci[^>]*>)?\s*Vedúci", html):
+        koniec = html.find("</table>", m.end())
+        tab = html[m.start(): koniec if koniec > 0 else len(html)]
+        for riadok in _RIADOK.finditer(tab):
+            b = _BUNKA.findall(riadok.group(1))
+            if len(b) < 8:
+                continue
+            ved = re.search(r"clovek\.pl\?id=(\d+)", b[6])
+            zp = re.search(r"[?;]zp=(\d+)", riadok.group(1))
+            rok = re.search(r"\d{4}", _text(b[5]))
+            if not ved or not rok:
+                continue
+            out.append(ZaverecnaPracaUIS(
+                zp_id=zp.group(1) if zp else "", stav=_text(b[1]), typ=_text(b[2]), nazov=_text(b[4]),
+                rok=int(rok.group(0)), veduci_id=ved.group(1), veduci_meno=_text(b[6]), pracovisko=_text(b[7])))
+    return out
+
+
+def zaverecne_prace(pracovisko_id: int, ak_roky: list[str]) -> list[ZaverecnaPracaUIS]:
+    """Bakalárske, diplomové a dizertačné práce pracoviska (fakulta zahŕňa všetky jej ústavy)."""
+    obdobia = sorted({o for o in (obdobie_zo_ak_roku(a) for a in ak_roky) if o})
+    if not obdobia:
+        raise UISChyba("Zadajte akademické roky v tvare 2023/2024.")
+    params = [("prehled", "pracoviste"), ("pracoviste", str(pracovisko_id)), ("typ", "1"), ("typ", "2"),
+              ("typ", "3"), *[("obdobi", str(o)) for o in obdobia], ("filtr_odklad", "0"), ("zobrazit", "Zobraziť")]
+    url = UIS_BASE + "/zp/portal_zp.pl"
+    req = urllib.request.Request(url, data=urllib.parse.urlencode(params).encode("utf-8"), headers={
+        "User-Agent": f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) SPU-Zataz/{__version__}",
+        "Accept-Language": "sk", "Content-Type": "application/x-www-form-urlencoded"})
+    try:
+        with urllib.request.urlopen(req, timeout=60, context=ssl.create_default_context()) as r:
+            html = r.read().decode("utf-8", errors="replace")
+    except Exception as e:  # noqa: BLE001
+        raise UISChyba(f"Záverečné práce sa nepodarilo načítať: {e}") from e
+    return [p for p in parsuj_zaverecne_prace(html) if p.rok in obdobia]
+
+
+_TITULY = re.compile(r"\b(prof|doc|ing|mgr|bc|rndr|phdr|paeddr|judr|mudr|mvdr|pharmdr|thdr|dr|arch|phd|csc|drsc|mba|artd|"
+                     r"h|c|dr\.h\.c)\.?(?=\s|,|$)", re.I)
+
+
+def kluc_mena(meno: str) -> str:
+    """Meno bez titulov ako množina slov – „doc. Ing. Ján Novák, PhD.“ aj „Novák Ján“ → „jan novak“."""
+    import unicodedata
+    t = _TITULY.sub(" ", meno.replace(",", " "))
+    t = unicodedata.normalize("NFKD", t).encode("ascii", "ignore").decode().lower()
+    return " ".join(sorted(w for w in re.split(r"[\s.]+", t) if len(w) > 1))
+
+
+@dataclass
+class PriradenieZP:
+    ucitel_id: Optional[int]
+    ucitel: str
+    ak_rok: str
+    stupen: str
+    prace: list[ZaverecnaPracaUIS]
+
+
+def prirad_ucitelom(prace: list[ZaverecnaPracaUIS], ucitelia) -> tuple[list[PriradenieZP], dict[str, int]]:
+    """Obhájené práce priradí učiteľom (podľa ID v UIS, inak podľa mena).
+    Vráti (priradenia po učiteľ × ak. rok × stupeň, {vedúci mimo databázy: počet prác})."""
+    podla_id = {u.osobne_cislo: u for u in ucitelia if u.osobne_cislo}
+    podla_mena = {kluc_mena(u.meno): u for u in ucitelia}
+    skupiny: dict[tuple, PriradenieZP] = {}
+    mimo: dict[str, int] = {}
+    for p in prace:
+        if not p.obhajena or not p.stupen:
+            continue
+        u = podla_id.get(p.veduci_id) or podla_mena.get(kluc_mena(p.veduci_meno))
+        if u is None:
+            mimo[p.veduci_meno] = mimo.get(p.veduci_meno, 0) + 1
+            continue
+        k = (u.id, p.ak_rok, p.stupen)
+        if k not in skupiny:
+            skupiny[k] = PriradenieZP(u.id, u.cele_meno, p.ak_rok, p.stupen, [])
+        skupiny[k].prace.append(p)
+    return sorted(skupiny.values(), key=lambda s: (s.ucitel, s.ak_rok, s.stupen)), mimo
+
+
+def uloz_zaverecne_prace(db, priradenia: list[PriradenieZP]) -> int:
+    """Uloží práce ako záznamy učiteľov. Predtým zmaže práce načítané z UIS skôr pre tých istých
+    učiteľov a akademické roky (ručne zadané záznamy zostanú)."""
+    from .models import ZaverecnaPraca
+    for uid, ak in {(s.ucitel_id, s.ak_rok) for s in priradenia}:
+        db.conn.execute("DELETE FROM zaverecne_prace WHERE ucitel_id = ? AND ak_rok = ? AND nazov LIKE ?",
+                        (uid, ak, f"%{ZP_ZNACKA}%"))
+    n = 0
+    for s in priradenia:
+        for p in s.prace:
+            db.uloz(ZaverecnaPraca(ucitel_id=s.ucitel_id, ak_rok=s.ak_rok, stupen=s.stupen, pocet=1,
+                                   nazov=f"{p.nazov} {ZP_ZNACKA}{p.zp_id}]"), commit=False)
+            n += 1
+    db.commit()
+    return n

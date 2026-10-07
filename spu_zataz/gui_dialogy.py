@@ -691,3 +691,122 @@ class UISZamestnanciDialog(tk.Toplevel):
         self.on_done()
         self.zobraz()
         messagebox.showinfo("Uložené", res.sprava(), parent=self)
+
+
+# ====================================================================== záverečné práce z UIS
+class UISZaverecnePraceDialog(tk.Toplevel):
+    """Obhájené záverečné práce zo zoznamu na is.uniag.sk/zp/ priradené vedúcim (učiteľom v databáze)."""
+
+    def __init__(self, master, db: Databaza, ak_roky: list[str], params: dict, on_done):
+        from . import uis_web
+        self.uis = uis_web
+        super().__init__(master)
+        self.title("Záverečné práce z UIS (is.uniag.sk/zp)")
+        self.geometry("980x640")
+        self.transient(master)
+        self.db, self.params, self.on_done = db, params, on_done
+        self.q: queue.Queue = queue.Queue()
+        self.fakulty: list = []
+        self.priradenia: list = []
+        self.mimo: dict = {}
+
+        top = ttk.Frame(self, padding=10)
+        top.pack(fill="x")
+        ttk.Label(top, text="Fakulta:").grid(row=0, column=0, sticky="w")
+        self.var_fak = tk.StringVar()
+        self.cb_fak = ttk.Combobox(top, textvariable=self.var_fak, state="readonly", width=44)
+        self.cb_fak.grid(row=0, column=1, sticky="w")
+        ttk.Label(top, text="Akademické roky:").grid(row=0, column=2, sticky="e", padx=(16, 4))
+        self.var_roky = tk.StringVar(value=", ".join(ak_roky))
+        ttk.Entry(top, textvariable=self.var_roky, width=26).grid(row=0, column=3, sticky="w")
+        ttk.Button(top, text="⬇ Načítať práce", style="Accent.TButton", command=self.nacitaj).grid(row=0, column=4, padx=10)
+        ttk.Label(top, foreground="#666", text=(
+            "Započítajú sa iba obhájené bakalárske, diplomové a dizertačné práce, ktorých vedúci je v databáze učiteľov "
+            "(podľa ID v UIS alebo mena). Roky sú prevzaté zo sledovaného obdobia.")).grid(row=1, column=0, columnspan=5, sticky="w", pady=(6, 0))
+
+        self.tab = Tabulka(self, [("uc", "Učiteľ (vedúci)", 280), ("ak", "Ak. rok", 90), ("st", "Stupeň", 70),
+                                  ("n", "Počet prác", 80), ("h", "Hodiny (tab. 1)", 100)], height=18)
+        self.tab.pack(fill="both", expand=True, padx=10)
+        dole = ttk.Frame(self, padding=10)
+        dole.pack(fill="x")
+        self.lbl = ttk.Label(dole, text="Načítavam zoznam fakúlt…")
+        self.lbl.pack(side="left")
+        ttk.Button(dole, text="Zavrieť", command=self.destroy).pack(side="right")
+        ttk.Button(dole, text="💾 Uložiť do databázy", style="Accent.TButton", command=self.uloz).pack(side="right", padx=6)
+        self.btn_mimo = ttk.Button(dole, text="Vedúci mimo databázy…", command=self.ukaz_mimo, state="disabled")
+        self.btn_mimo.pack(side="right")
+        _centruj(self, master)
+        self._spusti(self.uis.fakulty, self._fakulty_hotove)
+
+    def _spusti(self, funkcia, hotovo, *args):
+        def praca():
+            try:
+                self.q.put((True, hotovo, funkcia(*args)))
+            except Exception as e:  # noqa: BLE001
+                self.q.put((False, hotovo, e))
+        threading.Thread(target=praca, daemon=True).start()
+        self._poll()
+
+    def _poll(self):
+        try:
+            ok, hotovo, vysl = self.q.get_nowait()
+        except queue.Empty:
+            if self.winfo_exists():
+                self.after(200, self._poll)
+            return
+        if not ok:
+            self.lbl.config(text="Chyba pri načítaní.")
+            messagebox.showerror("UIS", str(vysl), parent=self)
+            return
+        hotovo(vysl)
+
+    def _fakulty_hotove(self, fakulty):
+        self.fakulty = fakulty
+        self.cb_fak["values"] = [f.nazov for f in fakulty]
+        tf = next((i for i, f in enumerate(fakulty) if f.id == 30), 0 if fakulty else None)
+        if tf is not None:
+            self.cb_fak.current(tf)
+        self.lbl.config(text="Skontrolujte roky a kliknite na Načítať práce.")
+
+    def nacitaj(self):
+        f = next((x for x in self.fakulty if x.nazov == self.var_fak.get()), None)
+        roky = [importy.to_ak_rok(x) for x in self.var_roky.get().replace(";", ",").split(",") if x.strip()]
+        if not f or not roky:
+            messagebox.showwarning("UIS", "Vyberte fakultu a zadajte akademické roky (napr. 2023/2024, 2024/2025).", parent=self)
+            return
+        ucitelia = self.db.nacitaj("ucitelia")
+        if not ucitelia:
+            messagebox.showinfo("UIS", "V databáze nie sú učitelia. Najprv ich načítajte (Učitelia z UIS).", parent=self)
+            return
+
+        def praca():
+            prace = self.uis.zaverecne_prace(f.id, roky)
+            return prace, self.uis.prirad_ucitelom(prace, ucitelia)
+
+        self.lbl.config(text="Načítavam záverečné práce…")
+        self._spusti(praca, self._hotovo)
+
+    def _hotovo(self, vysl):
+        prace, (self.priradenia, self.mimo) = vysl
+        hod = self.params["hodiny_zaverecna_praca"]
+        self.tab.nastav([(i, [s.ucitel, s.ak_rok, s.stupen, len(s.prace), fmt(len(s.prace) * hod.get(s.stupen, 0), 0)], ())
+                         for i, s in enumerate(self.priradenia)])
+        obh = sum(1 for p in prace if p.obhajena and p.stupen)
+        prir = sum(len(s.prace) for s in self.priradenia)
+        self.lbl.config(text=f"Obhájených prác: {obh}, priradených učiteľom v databáze: {prir}, "
+                             f"vedúci mimo databázy: {len(self.mimo)}.")
+        self.btn_mimo.config(state="normal" if self.mimo else "disabled")
+
+    def ukaz_mimo(self):
+        t = "\n".join(f"{m}: {n}" for m, n in sorted(self.mimo.items(), key=lambda x: -x[1]))
+        messagebox.showinfo("Vedúci mimo databázy",
+                            "Tieto práce viedli osoby, ktoré nie sú medzi učiteľmi v databáze "
+                            "(napr. z iných ústavov alebo externí):\n\n" + t, parent=self)
+
+    def uloz(self):
+        if not self.priradenia:
+            return
+        n = self.uis.uloz_zaverecne_prace(self.db, self.priradenia)
+        self.on_done()
+        messagebox.showinfo("Uložené", f"Uložených {n} záverečných prác. Práce načítané z UIS skôr pre tých istých "
+                                       "učiteľov a roky boli nahradené, ručne zadané zostali.", parent=self)

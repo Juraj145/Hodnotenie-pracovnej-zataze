@@ -93,6 +93,7 @@ class App:
         subor.add_command(label="Vytvoriť prázdnu Excel šablónu…", command=self.sablona)
         subor.add_command(label="Importovať vyplnenú šablónu…", command=self.import_sablony)
         subor.add_command(label="Načítať učiteľov a ústavy z UIS (is.uniag.sk)…", command=self.import_uis_zamestnanci)
+        subor.add_command(label="Načítať záverečné práce z UIS (is.uniag.sk/zp)…", command=self.import_uis_zp)
         subor.add_command(label="Importovať export z UIS / CREPČ / iný súbor…", command=self.import_mapovanie)
         subor.add_command(label="Načítať publikácie zo Scopus / Web of Science…", command=self.import_biblio)
         subor.add_separator()
@@ -168,6 +169,7 @@ class App:
         ttk.Button(rychly, text="📄 Prázdna Excel šablóna", command=self.sablona).pack(side="left")
         ttk.Button(rychly, text="📁 Import šablóny", command=self.import_sablony).pack(side="left", padx=4)
         ttk.Button(rychly, text="👥 Učitelia z UIS", command=self.import_uis_zamestnanci).pack(side="left")
+        ttk.Button(rychly, text="🎓 Záverečné práce z UIS", command=self.import_uis_zp).pack(side="left", padx=(4, 0))
         ttk.Button(rychly, text="🔀 Import z UIS / CREPČ", command=self.import_mapovanie).pack(side="left", padx=4)
         ttk.Button(rychly, text="🌐 Scopus / WoS", command=self.import_biblio).pack(side="left", padx=4)
         ttk.Button(rychly, text="▶ Vypočítať", style="Accent.TButton",
@@ -623,6 +625,15 @@ class App:
     def import_uis_zamestnanci(self):
         from .gui_dialogy import UISZamestnanciDialog
         UISZamestnanciDialog(self.root, self.db, on_done=self.obnov_vsetko)
+
+    def import_uis_zp(self):
+        from .gui_dialogy import UISZaverecnePraceDialog
+        try:
+            roky = self._obdobie_z_poli().ak_roky
+        except ValueError:
+            roky = self.obdobie.ak_roky
+        UISZaverecnePraceDialog(self.root, self.db, roky, self.params,
+                                on_done=lambda: (self.obnov_vsetko(), self.prepocitaj()))
 
     def import_biblio(self):
         from .gui_dialogy import BiblioDialog

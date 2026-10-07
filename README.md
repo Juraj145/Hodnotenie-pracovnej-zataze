@@ -32,6 +32,7 @@ Na zálohu alebo odovzdanie údajov kolegovi slúži *Súbor → Exportovať vš
 | Spôsob | Kde |
 |---|---|
 | Učitelia a ústavy z UIS | *Súbor → Načítať učiteľov a ústavy z UIS* – vyberiete fakultu, označíte ústavy a program z verejného zoznamu zamestnancov na is.uniag.sk založí učiteľov s titulmi, funkciou a priradeným ústavom (ID osoby v UIS sa použije ako osobné číslo). Úväzok doplníte. |
+| Záverečné práce z UIS | *Súbor → Načítať záverečné práce z UIS* – pre zvolenú fakultu a akademické roky sledovaného obdobia načíta z is.uniag.sk/zp obhájené bakalárske, diplomové a dizertačné práce a priradí ich vedúcim v databáze. |
 | Ručne | karta **Vstupné údaje** – tlačidlá Pridať / Upraviť / Vymazať (dvojklik = úprava) |
 | Excel šablóna | *Súbor → Vytvoriť prázdnu Excel šablónu*, vyplniť, *Importovať vyplnenú šablónu* |
 | Export z UIS, CREPČ, Sofia | *Súbor → Importovať export z UIS / CREPČ…* – vyberiete súbor (XLSX/CSV), typ údajov a priradíte stĺpce. Mapovanie si uložíte ako profil a nabudúce ho len zvolíte. |
