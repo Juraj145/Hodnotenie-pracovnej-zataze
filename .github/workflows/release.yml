@@ -1,0 +1,64 @@
+# Zostavenie SPU-Zataz.exe a zverejnenie nového vydania.
+# Spustí sa po nahratí tagu v tvare vX.Y.Z (napr. v0.2.0), alebo ručne v záložke Actions.
+name: Vydanie (build exe)
+
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+    inputs:
+      verzia:
+        description: "Verzia vydania (napr. 0.2.0)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Inštalácia závislostí
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller pytest
+
+      - name: Testy výpočtov
+        run: python -m pytest -q tests
+
+      - name: Nastavenie verzie
+        id: ver
+        shell: pwsh
+        run: |
+          if ("${{ github.event_name }}" -eq "workflow_dispatch") { $v = "${{ github.event.inputs.verzia }}" } else { $v = "${{ github.ref_name }}" }
+          $v = $v.TrimStart("v")
+          (Get-Content spu_zataz/version.py) -replace '__version__ = ".*"', "__version__ = `"$v`"" | Set-Content -Encoding utf8 spu_zataz/version.py
+          "verzia=$v" >> $env:GITHUB_OUTPUT
+
+      - name: PyInstaller
+        run: >
+          pyinstaller --noconfirm --onefile --windowed --name SPU-Zataz
+          --icon assets/icon.ico --add-data "assets/icon.ico;assets"
+          main.py
+
+      - name: Kontrolný súčet
+        shell: pwsh
+        run: |
+          $h = (Get-FileHash dist/SPU-Zataz.exe -Algorithm SHA256).Hash.ToLower()
+          "$h  SPU-Zataz.exe" | Set-Content -NoNewline -Encoding ascii dist/SPU-Zataz.exe.sha256
+
+      - name: Zverejnenie vydania
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.ver.outputs.verzia }}
+          name: Verzia ${{ steps.ver.outputs.verzia }}
+          generate_release_notes: true
+          files: |
+            dist/SPU-Zataz.exe
+            dist/SPU-Zataz.exe.sha256
