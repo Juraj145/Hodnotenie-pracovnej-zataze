@@ -463,3 +463,229 @@ class AktualizaciaDialog(tk.Toplevel):
 
         threading.Thread(target=praca, daemon=True).start()
         poll()
+
+
+# ====================================================================== zamestnanci z UIS
+class UISZamestnanciDialog(tk.Toplevel):
+    """Načítanie učiteľov a ich priradenia k ústavom z verejného zoznamu zamestnancov v UIS."""
+
+    def __init__(self, master, db: Databaza, on_done):
+        from . import uis_web
+        self.uis = uis_web
+        super().__init__(master)
+        self.title("Učitelia a ústavy z UIS (is.uniag.sk)")
+        self.geometry("1180x700")
+        self.transient(master)
+        self.db, self.on_done = db, on_done
+        self.q: queue.Queue = queue.Queue()
+        self.fakulty: list = []
+        self.pracoviska: list = []           # Pracovisko
+        self.fakulta_skratka = ""
+        self.nacitani: list = []             # (Zamestnanec, fakulta, ústav)
+
+        top = ttk.Frame(self, padding=10)
+        top.pack(fill="x")
+        ttk.Label(top, text="Fakulta:").grid(row=0, column=0, sticky="w")
+        self.var_fak = tk.StringVar()
+        self.cb_fak = ttk.Combobox(top, textvariable=self.var_fak, state="readonly", width=48)
+        self.cb_fak.grid(row=0, column=1, sticky="w")
+        self.cb_fak.bind("<<ComboboxSelected>>", lambda e: self.nacitaj_pracoviska())
+        ttk.Label(top, text="alebo odkaz / ID pracoviska z UIS:").grid(row=0, column=2, sticky="e", padx=(18, 4))
+        self.var_odkaz = tk.StringVar()
+        ttk.Entry(top, textvariable=self.var_odkaz, width=40).grid(row=0, column=3, sticky="w")
+        ttk.Button(top, text="Pridať", command=self.pridaj_odkaz).grid(row=0, column=4, padx=4)
+        ttk.Button(top, text="Zo súboru HTML…", command=self.zo_suboru).grid(row=0, column=5, padx=(14, 0))
+
+        opt = ttk.Frame(self, padding=(10, 0))
+        opt.pack(fill="x")
+        self.var_ped = tk.BooleanVar(value=True)
+        self.var_ext = tk.BooleanVar(value=False)
+        self.var_nazov = tk.StringVar(value="plny")
+        ttk.Checkbutton(opt, text="iba pedagógovia (profesor, docent, odborný asistent, lektor)",
+                        variable=self.var_ped, command=self.zobraz).pack(side="left")
+        ttk.Checkbutton(opt, text="aj externí pracovníci", variable=self.var_ext, command=self.zobraz).pack(side="left", padx=12)
+        ttk.Label(opt, text="Názov ústavu:").pack(side="left", padx=(20, 4))
+        ttk.Radiobutton(opt, text="plný", value="plny", variable=self.var_nazov, command=self.zobraz).pack(side="left")
+        ttk.Radiobutton(opt, text="skratka", value="skratka", variable=self.var_nazov, command=self.zobraz).pack(side="left")
+
+        stred = ttk.Frame(self, padding=10)
+        stred.pack(fill="both", expand=True)
+        lf = ttk.LabelFrame(stred, text=" Pracoviská (vyberte jedno alebo viac) ", padding=4)
+        lf.pack(side="left", fill="y")
+        self.t_prac = Tabulka(lf, [("id", "ID", 50), ("sk", "Skratka", 70), ("na", "Názov", 260)], height=18)
+        self.t_prac.pack(fill="both", expand=True)
+        ttk.Button(lf, text="⬇ Načítať zamestnancov", style="Accent.TButton",
+                   command=self.nacitaj_zamestnancov).pack(fill="x", pady=(6, 0))
+        rf = ttk.LabelFrame(stred, text=" Zamestnanci (vybrané riadky sa uložia) ", padding=4)
+        rf.pack(side="left", fill="both", expand=True, padx=(10, 0))
+        self.t_zam = Tabulka(rf, [("id", "ID v UIS", 70), ("meno", "Priezvisko a meno", 190), ("tp", "Titul pred", 90),
+                                  ("tz", "Titul za", 80), ("zar", "Zaradenie", 140), ("ust", "Ústav", 220),
+                                  ("stav", "V databáze", 150)], height=18)
+        self.t_zam.pack(fill="both", expand=True)
+        self.t_zam.tree.tag_configure("novy", background="#C6EFCE")
+        self.t_zam.tree.tag_configure("zmena", background="#FFF2CC")
+
+        dole = ttk.Frame(self, padding=10)
+        dole.pack(fill="x")
+        self.lbl = ttk.Label(dole, text="Načítavam zoznam fakúlt…")
+        self.lbl.pack(side="left")
+        ttk.Button(dole, text="Zavrieť", command=self.destroy).pack(side="right")
+        ttk.Button(dole, text="💾 Uložiť vybraných do databázy", style="Accent.TButton",
+                   command=self.uloz).pack(side="right", padx=6)
+        _centruj(self, master)
+        self._spusti(self.uis.fakulty, self._fakulty_hotove)
+
+    # ---------------------------------------------------------------- vlákna
+    def _spusti(self, funkcia, hotovo, *args):
+        def praca():
+            try:
+                self.q.put(("ok", hotovo, funkcia(*args)))
+            except Exception as e:  # noqa: BLE001
+                self.q.put(("err", hotovo, e))
+        threading.Thread(target=praca, daemon=True).start()
+        self._poll()
+
+    def _poll(self):
+        try:
+            druh, hotovo, vysl = self.q.get_nowait()
+        except queue.Empty:
+            if self.winfo_exists():
+                self.after(200, self._poll)
+            return
+        if druh == "err":
+            self.lbl.config(text="Chyba pri načítaní.")
+            messagebox.showerror("UIS", f"{vysl}\n\nAk nie ste v sieti univerzity alebo UIS stránku nevydá, "
+                                        "uložte zoznam zamestnancov v prehliadači (Ctrl+S) a použite „Zo súboru HTML…“.",
+                                 parent=self)
+            return
+        hotovo(vysl)
+
+    # ---------------------------------------------------------------- fakulty a pracoviská
+    def _fakulty_hotove(self, fakulty):
+        self.fakulty = fakulty
+        self.cb_fak["values"] = [p.nazov for p in fakulty]
+        self.lbl.config(text="Vyberte fakultu.")
+        tf = next((i for i, p in enumerate(fakulty) if p.id == 30), None)
+        if tf is not None:
+            self.cb_fak.current(tf)
+            self.nacitaj_pracoviska()
+
+    def nacitaj_pracoviska(self):
+        p = next((f for f in self.fakulty if f.nazov == self.var_fak.get()), None)
+        if not p:
+            return
+        self.lbl.config(text="Načítavam pracoviská…")
+        self._spusti(self.uis.fakulta_a_pracoviska, self._pracoviska_hotove, p.id)
+
+    def _pracoviska_hotove(self, vysl):
+        self.fakulta_skratka, prac = vysl
+        self.pracoviska = prac
+        self.t_prac.nastav([(p.id, [p.id, p.skratka, p.nazov], ()) for p in prac])
+        ustavy = [str(p.id) for p in prac if p.nazov.lower().startswith(("ústav", "katedra"))]
+        self.t_prac.tree.selection_set(ustavy)
+        self.lbl.config(text=f"{self.fakulta_skratka}: {len(prac)} pracovísk. Označené sú ústavy.")
+
+    def pridaj_odkaz(self):
+        pid = self.uis.id_z_odkazu(self.var_odkaz.get())
+        if not pid:
+            messagebox.showwarning("UIS", "Zadajte odkaz na pracovisko alebo zoznam zamestnancov, alebo číslo ID.", parent=self)
+            return
+
+        def zisti(pid):
+            fak_id, fak_sk, sk = self.uis.info_o_pracovisku(pid)
+            nazov = sk
+            if fak_id:
+                _, prac = self.uis.fakulta_a_pracoviska(fak_id)
+                nazov = next((p.nazov for p in prac if p.id == pid), sk)
+            return fak_sk, self.uis.Pracovisko(id=pid, nazov=nazov, skratka=sk)
+
+        def hotovo(vysl):
+            fak_sk, p = vysl
+            self.fakulta_skratka = self.fakulta_skratka or fak_sk
+            if all(x.id != p.id for x in self.pracoviska):
+                self.pracoviska.append(p)
+                self.t_prac.tree.insert("", "end", iid=str(p.id), values=[p.id, p.skratka, p.nazov])
+            self.t_prac.tree.selection_add(str(p.id))
+            self.lbl.config(text=f"Pridané: {p.nazov}")
+        self._spusti(zisti, hotovo, pid)
+
+    # ---------------------------------------------------------------- zamestnanci
+    def _nazov_ustavu(self, p) -> str:
+        if isinstance(p, str):
+            return p
+        return (p.skratka or p.nazov) if self.var_nazov.get() == "skratka" else p.nazov
+
+    def nacitaj_zamestnancov(self):
+        vybrane = [p for p in self.pracoviska if str(p.id) in self.t_prac.vybrane()]
+        if not vybrane:
+            messagebox.showinfo("UIS", "Vyberte aspoň jedno pracovisko.", parent=self)
+            return
+        fak = self.fakulta_skratka
+
+        def praca():
+            out = []
+            for p in vybrane:
+                for z in self.uis.zamestnanci_pracoviska(p.id):
+                    out.append((z, fak, p))
+            return out
+
+        def hotovo(vysl):
+            self.nacitani = vysl
+            self.zobraz()
+        self.lbl.config(text=f"Načítavam zamestnancov ({len(vybrane)} pracovísk)…")
+        self._spusti(praca, hotovo)
+
+    def zo_suboru(self):
+        path = filedialog.askopenfilename(parent=self, title="Uložená stránka „Zoznam zamestnancov“ z UIS",
+                                          filetypes=[("Webová stránka", "*.html *.htm"), ("Všetky", "*.*")])
+        if not path:
+            return
+        html = Path(path).read_bytes().decode("utf-8", errors="replace")
+        zoznam = self.uis.zamestnanci(html)
+        if not zoznam:
+            messagebox.showwarning("UIS", "V súbore sa nenašiel zoznam zamestnancov z UIS.", parent=self)
+            return
+        fak = simpledialog.askstring("Fakulta", "Skratka fakulty (napr. TF):", parent=self,
+                                     initialvalue=self.fakulta_skratka or "")
+        ustav = simpledialog.askstring("Ústav", "Názov ústavu, ku ktorému patria:", parent=self)
+        if not ustav:
+            return
+        self.nacitani = [(z, fak or "", ustav) for z in zoznam]
+        self.zobraz()
+
+    def _viditelni(self):
+        out = []
+        for i, (z, fak, ust) in enumerate(self.nacitani):
+            if self.var_ped.get() and not z.je_pedagog and not (self.var_ext.get() and z.externy):
+                continue
+            if z.externy and not self.var_ext.get():
+                continue
+            out.append((i, z, fak, self._nazov_ustavu(ust)))
+        return out
+
+    def zobraz(self):
+        existujuci = {u.osobne_cislo: u for u in self.db.nacitaj("ucitelia") if u.osobne_cislo}
+        riadky = []
+        for i, z, fak, ust in self._viditelni():
+            u = existujuci.get(z.uis_id)
+            if u is None:
+                stav, tag = "nový", ("novy",)
+            elif u.ustav != ust:
+                stav, tag = f"zmena ústavu (z {u.ustav or '–'})", ("zmena",)
+            else:
+                stav, tag = "už je, aktualizuje sa", ()
+            riadky.append((i, [z.uis_id, z.meno, z.titul_pred, z.titul_za, z.zaradenie, ust, stav], tag))
+        self.t_zam.nastav(riadky)
+        self.t_zam.tree.selection_set(self.t_zam.tree.get_children())
+        self.lbl.config(text=f"Zobrazených {len(riadky)} z {len(self.nacitani)} načítaných osôb.")
+
+    def uloz(self):
+        sel = self.t_zam.vybrane()
+        if not sel:
+            messagebox.showinfo("UIS", "Najprv načítajte zamestnancov a vyberte, koho uložiť.", parent=self)
+            return
+        polozky = [(z, fak, self._nazov_ustavu(p)) for z, fak, p in (self.nacitani[int(i)] for i in sel)]
+        res = self.uis.zluc_do_databazy(self.db, polozky)
+        self.on_done()
+        self.zobraz()
+        messagebox.showinfo("Uložené", res.sprava(), parent=self)

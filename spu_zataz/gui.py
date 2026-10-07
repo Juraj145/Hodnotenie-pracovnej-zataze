@@ -92,6 +92,7 @@ class App:
         subor = tk.Menu(m, tearoff=0)
         subor.add_command(label="Vytvoriť prázdnu Excel šablónu…", command=self.sablona)
         subor.add_command(label="Importovať vyplnenú šablónu…", command=self.import_sablony)
+        subor.add_command(label="Načítať učiteľov a ústavy z UIS (is.uniag.sk)…", command=self.import_uis_zamestnanci)
         subor.add_command(label="Importovať export z UIS / CREPČ / iný súbor…", command=self.import_mapovanie)
         subor.add_command(label="Načítať publikácie zo Scopus / Web of Science…", command=self.import_biblio)
         subor.add_separator()
@@ -166,7 +167,8 @@ class App:
         rychly.pack(fill="x", pady=(6, 0))
         ttk.Button(rychly, text="📄 Prázdna Excel šablóna", command=self.sablona).pack(side="left")
         ttk.Button(rychly, text="📁 Import šablóny", command=self.import_sablony).pack(side="left", padx=4)
-        ttk.Button(rychly, text="🔀 Import z UIS / CREPČ", command=self.import_mapovanie).pack(side="left")
+        ttk.Button(rychly, text="👥 Učitelia z UIS", command=self.import_uis_zamestnanci).pack(side="left")
+        ttk.Button(rychly, text="🔀 Import z UIS / CREPČ", command=self.import_mapovanie).pack(side="left", padx=4)
         ttk.Button(rychly, text="🌐 Scopus / WoS", command=self.import_biblio).pack(side="left", padx=4)
         ttk.Button(rychly, text="▶ Vypočítať", style="Accent.TButton",
                    command=lambda: (self.prepocitaj(), self.nb.select(1))).pack(side="right")
@@ -617,6 +619,10 @@ class App:
     def import_mapovanie(self):
         from .gui_dialogy import ImportDialog
         ImportDialog(self.root, self.db, on_done=lambda: (self.obnov_vsetko(), self.navrhni_obdobie()))
+
+    def import_uis_zamestnanci(self):
+        from .gui_dialogy import UISZamestnanciDialog
+        UISZamestnanciDialog(self.root, self.db, on_done=self.obnov_vsetko)
 
     def import_biblio(self):
         from .gui_dialogy import BiblioDialog
