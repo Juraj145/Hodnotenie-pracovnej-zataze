@@ -47,6 +47,21 @@ jobs:
           --icon assets/icon.ico --add-data "assets/icon.ico;assets"
           main.py
 
+      - name: Test výmeny exe pri aktualizácii
+        shell: pwsh
+        run: |
+          $dir = Join-Path $env:RUNNER_TEMP "upd"
+          New-Item -ItemType Directory -Force $dir | Out-Null
+          Copy-Item dist/SPU-Zataz.exe $dir
+          $marker = Join-Path $dir "vysledok.txt"
+          Start-Process -FilePath (Join-Path $dir "SPU-Zataz.exe") -ArgumentList "--test-aktualizacie", $marker -Wait
+          for ($i = 0; $i -lt 60 -and -not (Test-Path $marker); $i++) { Start-Sleep -Seconds 1 }
+          if (-not (Test-Path $marker)) { throw "Nová verzia sa po výmene nespustila." }
+          Get-Content $marker
+          if (-not (Select-String -Path $marker -Pattern "upratane=True" -Quiet)) { throw "Stará verzia nebola zmazaná." }
+          if (-not (Test-Path (Join-Path $dir "SPU-Zataz.exe"))) { throw "Chýba SPU-Zataz.exe po výmene." }
+          Get-ChildItem $dir | Format-Table Name, Length
+
       - name: Kontrolný súčet
         shell: pwsh
         run: |

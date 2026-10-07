@@ -2,8 +2,8 @@
 
 Postup: program sa pri štarte opýta GitHubu na posledné vydanie (release). Ak je novšie,
 ponúkne aktualizáciu, stiahne nový .exe vedľa pôvodného, overí kontrolný súčet SHA-256
-(súbor SPU-Zataz.exe.sha256 v tom istom vydaní), a malý dávkový skript po zatvorení
-programu starý .exe nahradí novým a program znova spustí.
+(súbor SPU-Zataz.exe.sha256 v tom istom vydaní), bežiaci .exe premenuje, nový presunie
+na jeho miesto a spustí ho. Stará verzia sa zmaže pri ďalšom štarte.
 """
 
 from __future__ import annotations
@@ -116,29 +116,75 @@ def stiahni(v: Vydanie, progress: Optional[Callable[[int, int], None]] = None) -
     return ciel
 
 
-def nainstaluj_a_restartuj(novy: Path) -> None:
-    """Spustí skript, ktorý po skončení programu nahradí exe a spustí novú verziu. Potom treba program ukončiť."""
+def _stara_cesta(exe: Path) -> Path:
+    return exe.with_name(exe.stem + ".old" + exe.suffix)
+
+
+def nainstaluj_a_restartuj(novy: Path, argumenty: Optional[list[str]] = None) -> None:
+    """Vymení exe a spustí novú verziu. Potom treba program hneď ukončiť.
+
+    Windows nedovolí bežiaci .exe prepísať ani zmazať, ale dovolí ho premenovať. Bežiaci súbor sa
+    preto premenuje na SPU-Zataz.old.exe, nový sa presunie na jeho miesto a spustí sa. Starý súbor
+    zmaže nová verzia pri štarte (funkcia upratanie). Nepoužíva sa žiadny dávkový skript ani okno konzoly.
+    """
     if not je_exe() or not sys.platform.startswith("win"):
         raise RuntimeError("Automatická výmena funguje iba pre spustiteľný súbor vo Windows. "
                            "Pri spustení zo zdrojového kódu použite 'git pull'.")
     exe = Path(sys.executable)
-    bat = Path(tempfile.gettempdir()) / "spu_zataz_update.bat"
-    bat.write_text(
-        "@echo off\r\n"
-        "chcp 65001 >nul\r\n"
-        "set /a pokus=0\r\n"
-        ":wait\r\n"
-        "timeout /t 1 /nobreak >nul\r\n"
-        f'tasklist /FI "PID eq {os.getpid()}" 2>nul | find "{os.getpid()}" >nul && goto wait\r\n'
-        ":move\r\n"
-        "set /a pokus+=1\r\n"
-        f'move /y "{novy}" "{exe}" >nul\r\n'
-        "if errorlevel 1 (\r\n"
-        "  if %pokus% lss 30 (timeout /t 1 /nobreak >nul & goto move)\r\n"
-        ")\r\n"
-        f'start "" "{exe}"\r\n'
-        'del "%~f0"\r\n',
-        encoding="utf-8",
-    )
-    flags = 0x08000000 | 0x00000008  # CREATE_NO_WINDOW | DETACHED_PROCESS
-    subprocess.Popen(["cmd", "/c", str(bat)], creationflags=flags, close_fds=True)
+    stary = _stara_cesta(exe)
+    try:
+        stary.unlink(missing_ok=True)
+    except OSError:
+        pass
+    try:
+        os.replace(exe, stary)
+    except OSError as e:
+        raise RuntimeError(f"Program sa nedá premenovať ({e}). Ak je v priečinku bez práva zápisu "
+                           f"(napr. Program Files), presuňte ho napr. do Dokumentov.") from e
+    try:
+        os.replace(novy, exe)
+    except OSError as e:
+        os.replace(stary, exe)   # vrátiť pôvodný stav
+        raise RuntimeError(f"Novú verziu sa nepodarilo presunúť na miesto: {e}") from e
+    env = {k: v for k, v in os.environ.items() if not k.startswith(("_MEI", "_PYI", "_PYINSTALLER"))}
+    env["PYINSTALLER_RESET_ENVIRONMENT"] = "1"   # nová verzia si rozbalí vlastné súbory
+    flags = 0x00000008 | 0x00000200              # DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP
+    subprocess.Popen([str(exe), *(argumenty or [])], cwd=str(exe.parent), env=env,
+                     creationflags=flags, close_fds=True)
+
+
+def upratanie(cakat_sekund: float = 0.0) -> bool:
+    """Zmaže starú verziu po aktualizácii (a nedokončené sťahovanie). Vráti True, ak nič nezostalo."""
+    if not je_exe():
+        return True
+    import time
+    exe = Path(sys.executable)
+    zostatky = [_stara_cesta(exe), exe.with_name(exe.name + ".new")]
+    koniec = time.time() + cakat_sekund
+    while True:
+        for f in zostatky:
+            try:
+                f.unlink(missing_ok=True)
+            except OSError:
+                pass
+        if not any(f.exists() for f in zostatky) or time.time() >= koniec:
+            return not any(f.exists() for f in zostatky)
+        time.sleep(0.5)
+
+
+def samotest(argv: list[str]) -> int:
+    """Test výmeny exe na Windows (spúšťa ho GitHub Actions po zostavení).
+
+    SPU-Zataz.exe --test-aktualizacie <súbor>  → skopíruje sa ako „nová verzia“ a vymení sa
+    SPU-Zataz.exe --test-aktualizacie <súbor> --pokracovanie → zapíše výsledok upratania do súboru
+    """
+    import shutil
+    vystup = Path(argv[argv.index("--test-aktualizacie") + 1])
+    if "--pokracovanie" in argv:
+        ok = upratanie(cakat_sekund=20)
+        vystup.write_text(f"verzia={__version__}\nupratane={ok}\n", encoding="utf-8")
+        return 0
+    novy = Path(sys.executable).with_name(EXE_ASSET_NAME + ".new")
+    shutil.copy2(sys.executable, novy)
+    nainstaluj_a_restartuj(novy, ["--test-aktualizacie", str(vystup), "--pokracovanie"])
+    return 0

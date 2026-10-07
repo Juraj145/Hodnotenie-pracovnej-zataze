@@ -755,6 +755,8 @@ def main():
             ctypes.windll.shcore.SetProcessDpiAwareness(1)
         except Exception:  # noqa: BLE001
             pass
+    # po aktualizácii zmazať starú verziu (stará ešte môže pár sekúnd končiť)
+    threading.Thread(target=lambda: updater.upratanie(cakat_sekund=30), daemon=True).start()
     root = tk.Tk()
     base = getattr(sys, "_MEIPASS", os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     ikona = os.path.join(base, "assets", "icon.ico")

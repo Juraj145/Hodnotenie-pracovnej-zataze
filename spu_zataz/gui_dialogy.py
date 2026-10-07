@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import queue
 import threading
 import tkinter as tk
@@ -451,7 +452,8 @@ class AktualizaciaDialog(tk.Toplevel):
                         except Exception as e:  # noqa: BLE001
                             messagebox.showerror("Aktualizácia", str(e), parent=self)
                             return
-                        self.master_root.after(300, self.master_root.destroy)
+                        # nová verzia už beží – táto sa musí hneď ukončiť
+                        self.master_root.after(200, lambda: (self.master_root.destroy(), os._exit(0)))
                         return
                     else:
                         messagebox.showerror("Aktualizácia zlyhala", a, parent=self)
