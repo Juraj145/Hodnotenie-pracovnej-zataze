@@ -810,3 +810,195 @@ class UISZaverecnePraceDialog(tk.Toplevel):
         self.on_done()
         messagebox.showinfo("Uložené", f"Uložených {n} záverečných prác. Práce načítané z UIS skôr pre tých istých "
                                        "učiteľov a roky boli nahradené, ručne zadané zostali.", parent=self)
+
+
+# ====================================================================== projekty z UIS
+class UISProjektyDialog(tk.Toplevel):
+    """Projekty pracoviska z is.uniag.sk/vv/projekty.pl priradené učiteľom podľa čl. 5 metodického pokynu."""
+
+    def __init__(self, master, db: Databaza, roky: list[int], on_done):
+        from . import uis_web
+        self.uis = uis_web
+        super().__init__(master)
+        self.title("Projekty z UIS (is.uniag.sk/vv)")
+        self.geometry("1100x700")
+        self.transient(master)
+        self.db, self.on_done = db, on_done
+        self.q: queue.Queue = queue.Queue()
+        self.pracoviska: list = []
+        self.projekty: list = []          # ProjektUIS v sledovaných rokoch so započítaným stavom
+        self.kategorie: dict[str, str] = {}
+
+        top = ttk.Frame(self, padding=10)
+        top.pack(fill="x")
+        ttk.Label(top, text="Pracovisko:").grid(row=0, column=0, sticky="w")
+        self.var_prac = tk.StringVar()
+        self.cb_prac = ttk.Combobox(top, textvariable=self.var_prac, state="readonly", width=58)
+        self.cb_prac.grid(row=0, column=1, sticky="w")
+        ttk.Label(top, text="Kalendárne roky:").grid(row=0, column=2, sticky="e", padx=(16, 4))
+        self.var_roky = tk.StringVar(value=", ".join(map(str, roky)))
+        ttk.Entry(top, textvariable=self.var_roky, width=20).grid(row=0, column=3, sticky="w")
+        ttk.Button(top, text="1 ⬇ Načítať zoznam projektov", command=self.nacitaj_zoznam).grid(row=0, column=4, padx=10)
+        ttk.Label(top, foreground="#555", wraplength=1060, justify="left", text=(
+            "Podľa čl. 5 sa berú 3 posledné verifikované kalendárne roky a externé projekty podľa pozn. 8 (výskumné, "
+            "štrukturálne fondy, Erasmus+ KA2, APVV, VEGA, KEGA, verejná správa, iné subjekty). Započítajú sa projekty "
+            "v stave riešený alebo ukončený. Zodpovedný riešiteľ = garant v UIS; riešitelia = úloha Riešiteľ alebo "
+            "Metodický riešiteľ. Kategóriu druhu zmeníte dvojklikom.")).grid(row=1, column=0, columnspan=5, sticky="w", pady=(6, 0))
+
+        pw = ttk.PanedWindow(self, orient="vertical")
+        pw.pack(fill="both", expand=True, padx=10, pady=6)
+        f1 = ttk.LabelFrame(pw, text=" Druhy projektov a ich zaradenie podľa pokynu ", padding=4)
+        self.t_druhy = Tabulka(f1, [("druh", "Druh projektu v UIS", 470), ("n", "Projektov", 70),
+                                    ("kat", "Kategória podľa pokynu", 300), ("vys", "Výskumný (2× zodp. riešiteľ)", 170)],
+                               height=9, on_double=self.zmen_kategoriu)
+        self.t_druhy.pack(fill="both", expand=True)
+        self.t_druhy.tree.tag_configure("vyl", foreground="#999")
+        pw.add(f1, weight=2)
+        f2 = ttk.LabelFrame(pw, text=" Projekty ", padding=4)
+        self.t_proj = Tabulka(f2, [("kod", "Kód", 120), ("na", "Názov", 380), ("od", "Od", 50), ("do", "Do", 50),
+                                   ("stav", "Stav", 80), ("kat", "Kategória", 220), ("gar", "Garant", 140)], height=9)
+        self.t_proj.pack(fill="both", expand=True)
+        self.t_proj.tree.tag_configure("vyl", foreground="#999")
+        pw.add(f2, weight=3)
+
+        dole = ttk.Frame(self, padding=10)
+        dole.pack(fill="x")
+        self.pb = ttk.Progressbar(dole, length=200, mode="determinate")
+        self.pb.pack(side="left")
+        self.lbl = ttk.Label(dole, text="Načítavam zoznam pracovísk…")
+        self.lbl.pack(side="left", padx=8)
+        ttk.Button(dole, text="Zavrieť", command=self.destroy).pack(side="right")
+        self.btn_uloz = ttk.Button(dole, text="2 💾 Načítať riešiteľov a uložiť", style="Accent.TButton",
+                                   command=self.uloz, state="disabled")
+        self.btn_uloz.pack(side="right", padx=6)
+        _centruj(self, master)
+        self._spusti(self.uis.pracoviska_projektov, self._pracoviska_hotove)
+
+    # ---------------------------------------------------------------- vlákna
+    def _spusti(self, funkcia, hotovo, *args):
+        def praca():
+            try:
+                self.q.put(("ok", hotovo, funkcia(*args)))
+            except Exception as e:  # noqa: BLE001
+                self.q.put(("err", hotovo, e))
+        threading.Thread(target=praca, daemon=True).start()
+        self._poll()
+
+    def _poll(self):
+        try:
+            while True:
+                druh, a, b = self.q.get_nowait()
+                if druh == "p":
+                    self.pb["maximum"], self.pb["value"] = b, a
+                    self.lbl.config(text=f"Načítavam riešiteľov… {a} / {b}")
+                    continue
+                if druh == "err":
+                    self.lbl.config(text="Chyba pri načítaní.")
+                    self.btn_uloz.config(state="normal" if self.projekty else "disabled")
+                    messagebox.showerror("UIS", str(b), parent=self)
+                    return
+                a(b)
+                return
+        except queue.Empty:
+            pass
+        if self.winfo_exists():
+            self.after(200, self._poll)
+
+    # ---------------------------------------------------------------- pracoviská a zoznam
+    def _pracoviska_hotove(self, prac):
+        self.pracoviska = prac
+        self.cb_prac["values"] = [("      " * uroven) + nazov for _, nazov, uroven in prac]
+        tf = next((i for i, (pid, _, _) in enumerate(prac) if pid == 30), 0 if prac else None)
+        if tf is not None:
+            self.cb_prac.current(tf)
+        self.lbl.config(text="Vyberte pracovisko (fakultu alebo ústav) a načítajte zoznam projektov.")
+
+    def _roky(self) -> list[int]:
+        out = []
+        for x in self.var_roky.get().replace(";", ",").split(","):
+            x = x.strip()
+            if "-" in x:
+                a, b = x.split("-", 1)
+                out.extend(range(int(a), int(b) + 1))
+            elif x:
+                out.append(int(x))
+        return sorted(set(out))
+
+    def nacitaj_zoznam(self):
+        i = self.cb_prac.current()
+        try:
+            roky = self._roky()
+        except ValueError:
+            roky = []
+        if i < 0 or not roky:
+            messagebox.showwarning("UIS", "Vyberte pracovisko a zadajte kalendárne roky (napr. 2023, 2024, 2025).", parent=self)
+            return
+        pid = self.pracoviska[i][0]
+        self.lbl.config(text="Načítavam zoznam projektov…")
+        self.btn_uloz.config(state="disabled")
+        self._spusti(self.uis.zoznam_projektov, self._zoznam_hotovy, pid)
+
+    def _zoznam_hotovy(self, zoznam):
+        roky = self._roky()
+        self.projekty = [p for p in zoznam if p.zapocitany_stav and p.roky(roky)]
+        for p in self.projekty:
+            self.kategorie.setdefault(p.druh, self.uis.kategoria_projektu(p.druh))
+        self.zobraz()
+        self.lbl.config(text=f"V UIS {len(zoznam)} projektov pracoviska, v rokoch {', '.join(map(str, roky))} "
+                             f"riešených alebo ukončených: {len(self.projekty)}.")
+        self.btn_uloz.config(state="normal" if self.projekty else "disabled")
+
+    def _kat(self, p) -> str:
+        return config.NEZAPOCITAT if self.uis.je_interny_grant(p.kod) else self.kategorie.get(p.druh, "")
+
+    def zobraz(self):
+        from collections import Counter
+        vys = set(config.load_parametre()["vyskumne_typy_projektov"])
+        pocty = Counter(p.druh for p in self.projekty)
+        riadky = []
+        for i, (druh, n) in enumerate(sorted(pocty.items(), key=lambda x: (-x[1], x[0]))):
+            kat = self.kategorie.get(druh, "")
+            riadky.append((i, [druh, n, kat, "áno" if kat in vys else ""], ("vyl",) if kat == config.NEZAPOCITAT else ()))
+        self._druhy_poradie = [r[1][0] for r in riadky]
+        self.t_druhy.nastav(riadky)
+        self.t_proj.nastav([(i, [p.kod, p.nazov, p.od, p.do, p.stav, self._kat(p), p.garant_meno],
+                             ("vyl",) if self._kat(p) == config.NEZAPOCITAT else ())
+                            for i, p in enumerate(self.projekty)])
+
+    def zmen_kategoriu(self):
+        sel = self.t_druhy.vybrane()
+        if not sel:
+            return
+        druh = self._druhy_poradie[int(sel[0])]
+
+        def ok(h):
+            self.kategorie[druh] = h["kat"]
+            self.zobraz()
+            return None
+        Formular(self, "Kategória podľa pokynu", [("kat", druh[:60], "combo_strict",
+                                                   [config.NEZAPOCITAT, *config.TYPY_PROJEKTOV])],
+                 {"kat": self.kategorie.get(druh, "")}, ok)
+
+    # ---------------------------------------------------------------- uloženie
+    def uloz(self):
+        if not self.db.nacitaj("ucitelia"):
+            messagebox.showinfo("UIS", "V databáze nie sú učitelia. Najprv ich načítajte (Učitelia z UIS).", parent=self)
+            return
+        vybrane = [p for p in self.projekty if self._kat(p) != config.NEZAPOCITAT]
+        roky, kategorie = self._roky(), dict(self.kategorie)
+        self.btn_uloz.config(state="disabled")
+
+        def praca():   # vo vlákne iba sťahovanie; databáza sa zapisuje v hlavnom vlákne
+            for i, p in enumerate(vybrane, start=1):
+                self.uis.detail_projektu(p)
+                self.q.put(("p", i, len(vybrane)))
+            return vybrane
+
+        def hotovo(nacitane):
+            res = self.uis.uloz_projekty(self.db, nacitane, kategorie, roky)
+            self.pb["value"] = 0
+            self.btn_uloz.config(state="normal")
+            self.lbl.config(text=f"Hotovo – {res.projekty_roky} záznamov projekt × rok.")
+            self.on_done()
+            messagebox.showinfo("Projekty uložené", res.sprava(), parent=self)
+        self._spusti(praca, hotovo)

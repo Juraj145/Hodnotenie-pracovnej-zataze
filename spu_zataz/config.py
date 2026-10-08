@@ -34,8 +34,11 @@ FUNKCIE = ["profesor", "docent", "odborný asistent", "lektor", "iné"]
 
 TYPY_PROJEKTOV = [
     "VEGA", "KEGA", "APVV", "Medzinárodný výskumný (Horizont a pod.)",
+    "Iný výskumný zo štátneho rozpočtu (súťažný)",
     "Štrukturálne fondy", "Erasmus+ KA2", "Verejná správa", "Iný subjekt",
 ]
+# Druhy projektov z UIS, ktoré pokyn nezapočítava (pozn. 8 – iba externé projekty)
+NEZAPOCITAT = "— nezapočítať —"
 
 DEFAULT_PARAMETRE: dict = {
     # čl. 7 ods. 1.2 – ročný fond pracovného času pri plnom úväzku
@@ -71,7 +74,9 @@ DEFAULT_PARAMETRE: dict = {
     },
     # čl. 5 ods. 1 A – zodpovedný riešiteľ výskumného projektu
     "nasobok_zodpovedny_riesitel": 2.0,
-    "vyskumne_typy_projektov": ["VEGA", "KEGA", "APVV", "Medzinárodný výskumný (Horizont a pod.)"],
+    # pozn. 9 – výskumné projekty (bonifikácia zodpovedného riešiteľa)
+    "vyskumne_typy_projektov": ["VEGA", "KEGA", "APVV", "Medzinárodný výskumný (Horizont a pod.)",
+                                "Iný výskumný zo štátneho rozpočtu (súťažný)"],
     # čl. 6 ods. 1 – váhy sumárneho skóre
     "vahy": {"vzdelavanie": 0.4, "publikacie": 0.4, "projekty": 0.2},
     # čl. 7 ods. 1.2 a 1.3 – hranice záťaže vzdelávaním v % fondu

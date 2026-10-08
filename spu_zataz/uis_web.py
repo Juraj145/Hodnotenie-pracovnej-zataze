@@ -15,7 +15,7 @@ import re
 import ssl
 import urllib.parse
 import urllib.request
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 
 from .version import __version__
@@ -407,3 +407,239 @@ def uloz_zaverecne_prace(db, priradenia: list[PriradenieZP]) -> int:
             n += 1
     db.commit()
     return n
+
+
+# ------------------------------------------------------------------ projekty (is.uniag.sk/vv/projekty.pl)
+
+ZAPOCITANE_STAVY = ("riešený", "ukončený")
+ULOHY_RIESITELA = ("riešiteľ", "metodický riešiteľ")
+
+
+@dataclass
+class ProjektUIS:
+    uis_id: str
+    nazov: str
+    stav: str
+    od: int
+    do: int
+    druh: str
+    garant_id: str
+    garant_meno: str
+    kod: str = ""
+    riesitelia: list = field(default_factory=list)    # (uis_id, meno, úlohy)
+
+    @property
+    def zapocitany_stav(self) -> bool:
+        return self.stav.lower() in ZAPOCITANE_STAVY
+
+    def roky(self, sledovane: list[int]) -> list[int]:
+        return [r for r in sledovane if self.od <= r <= self.do]
+
+
+def _ascii(text: str) -> str:
+    import unicodedata
+    return unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode().lower()
+
+
+def je_interny_grant(kod: str) -> bool:
+    """Interné granty SPU (napr. „10-GA SPU-16“, „GA FEM“) – nie sú externé zdroje podľa pozn. 8."""
+    return bool(re.search(r"\bGA\s*(SPU|FAPZ|FBP|FEM|FE[SŠ]RR|FZKI|TF)\b", kod or "", re.I))
+
+
+def kategoria_projektu(druh: str, kod: str = "") -> str:
+    """Zaradí druh projektu z UIS do kategórie podľa pozn. 8 a 9 metodického pokynu.
+    Interné granty univerzity a mobilitné / štipendijné programy sa nezapočítavajú."""
+    from .config import NEZAPOCITAT
+    if je_interny_grant(kod):
+        return NEZAPOCITAT
+    d = _ascii(druh)
+    if not d or "duplicit" in d:
+        return NEZAPOCITAT
+    if re.match(r"ga\b|ga (spu|fapz|fbp|fem|fesrr|fzki|tf)", d) or "grantova agentura spu" in d:
+        return NEZAPOCITAT                     # interné granty SPU – nie sú externé zdroje
+    if any(x in d for x in ("stipend", "ceepus", "mobilit", "akcia rakusko", "academic exchange")):
+        return NEZAPOCITAT
+    if "vega" in d:
+        return "VEGA"
+    if "kega" in d:
+        return "KEGA"
+    if any(x in d for x in ("apvv", "apvt", "vseobecne vyzvy", "bilateraln", "multilateral", "mvts",
+                            "medzinarodna vedecko", "pripravne projekty")):
+        return "APVV"
+    if "erasmus" in d:
+        return "Erasmus+ KA2" if "ka2" in d else NEZAPOCITAT
+    if re.search(r"horizont|horizon|european research council|\berc\b|\bcost\b|biodiversa|eureka|era-net|"
+                 r"ramcov|\beits?\b", d):
+        return "Medzinárodný výskumný (Horizont a pod.)"
+    # akcie programu Erasmus+ KA2 evidované v UIS pod vlastným názvom
+    if "kooperacne partnerstv" in d or "capacity building" in d or ("budovani" in d and "kapacit" in d):
+        return "Erasmus+ KA2"
+    if "statne programy vyskumu" in d:
+        return "Iný výskumný zo štátneho rozpočtu (súťažný)"
+    if re.search(r"\bop\b|operacny program|\birop\b|interreg|plan obnovy|program slovensko|"
+                 r"program rozvoja vidieka|struktur|kohezn", d):
+        return "Štrukturálne fondy"
+    if any(x in d for x in ("dotaci", "mprv", "ministerst", "msvvas", "statnej sprav", "samosprav", "verejn")):
+        return "Verejná správa"
+    return "Iný subjekt"
+
+
+def _post(cesta: str, params: list[tuple[str, str]], timeout: int = 90) -> str:
+    req = urllib.request.Request(UIS_BASE + cesta, data=urllib.parse.urlencode(params).encode("utf-8"), headers={
+        "User-Agent": f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) SPU-Zataz/{__version__}",
+        "Accept-Language": "sk", "Content-Type": "application/x-www-form-urlencoded"})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout, context=ssl.create_default_context()) as r:
+            return r.read().decode("utf-8", errors="replace")
+    except Exception as e:  # noqa: BLE001
+        raise UISChyba(f"Stránku {cesta} sa nepodarilo načítať: {e}") from e
+
+
+def pracoviska_projektov(html: Optional[str] = None) -> list[tuple[int, str, int]]:
+    """Pracoviská z výberu na stránke „Projekty podľa pracoviska“: (id, názov, úroveň 0=SPU, 1=fakulta, 2=ústav)."""
+    html = html if html is not None else stiahni("/vv/projekty.pl?zalozka=5;lang=sk")
+    sel = re.search(r'<select[^>]*name="pracoviste"[^>]*>([\s\S]*?)</select>', html)
+    out = []
+    if not sel:
+        return out
+    for m in re.finditer(r'<option[^>]*value="(\d+)"[^>]*>([\s\S]*?)</option>', sel.group(1)):
+        surovy = htmllib.unescape(re.sub(r"<[^>]+>", "", m.group(2))).replace("\xa0", " ")
+        odsadenie = len(surovy) - len(surovy.lstrip(" "))
+        out.append((int(m.group(1)), " ".join(surovy.split()), odsadenie))
+    urovne = sorted({o for _, _, o in out})
+    return [(i, n, urovne.index(o)) for i, n, o in out]
+
+
+def parsuj_zoznam_projektov(html: str) -> list[ProjektUIS]:
+    out = []
+    for m in re.finditer(r"<th[^>]*>\s*Názov projektu", html):
+        koniec = html.find("</table>", m.end())
+        tab = html[m.start(): koniec if koniec > 0 else len(html)]
+        for riadok in _RIADOK.finditer(tab):
+            b = _BUNKA.findall(riadok.group(1))
+            if len(b) < 5:
+                continue
+            proj = re.search(r"projekt=(\d+)", b[1])
+            if not proj:
+                continue
+            stav = re.search(r'aria-label="([^"]+)"', b[0])
+            nazov = re.search(r"<a[^>]*projekt=\d+[^>]*>([\s\S]*?)</a>", b[1])
+            gar = re.search(r'clovek\.pl\?id=(\d+)[^>]*>([\s\S]*?)</a>', b[1])
+            try:
+                od, do = int(_text(b[2])), int(_text(b[3]) or _text(b[2]))
+            except ValueError:
+                continue
+            kod = re.search(r"</a>\s*\(([^()<]+)\)", b[1])
+            out.append(ProjektUIS(uis_id=proj.group(1), nazov=_text(nazov.group(1)) if nazov else "",
+                                  stav=stav.group(1) if stav else "", od=od, do=do, druh=_text(b[4]),
+                                  garant_id=gar.group(1) if gar else "", garant_meno=_text(gar.group(2)) if gar else "",
+                                  kod=_text(kod.group(1)) if kod else ""))
+        break
+    return out
+
+
+def zoznam_projektov(pracovisko_id: int) -> list[ProjektUIS]:
+    """Projekty, na ktorých je evidovaný aspoň jeden pracovník pracoviska (vrátane podpracovísk)."""
+    html = _post("/vv/projekty.pl", [("lang", "sk"), ("pracoviste", str(pracovisko_id)), ("podpracoviste", "1"),
+                                     ("stav", "-3"), ("pouzit_pracovnika", "1"),
+                                     ("dohledat_pracoviste", "Vyhľadať"), ("zalozka", "5")])
+    return parsuj_zoznam_projektov(html)
+
+
+def parsuj_detail_projektu(html_info: str, html_pracovnici: str, p: ProjektUIS) -> ProjektUIS:
+    for riadok in _RIADOK.finditer(html_info):
+        b = _BUNKA.findall(riadok.group(1))
+        if len(b) >= 2 and _text(b[0]).startswith("Identifikácia projektu"):
+            p.kod = _text(b[1])
+        if len(b) >= 2 and _text(b[0]).startswith("Druh projektu") and not p.druh:
+            p.druh = _text(b[1])
+    gar = re.search(r"Garant:\s*<a[^>]*clovek\.pl\?id=(\d+)[^>]*>([\s\S]*?)</a>", html_info)
+    if gar:
+        p.garant_id, p.garant_meno = gar.group(1), _text(gar.group(2))
+    p.riesitelia = []
+    for m in re.finditer(r"<th[^>]*>\s*Pracovník", html_pracovnici):
+        koniec = html_pracovnici.find("</table>", m.end())
+        tab = html_pracovnici[m.start(): koniec if koniec > 0 else len(html_pracovnici)]
+        for riadok in _RIADOK.finditer(tab):
+            b = _BUNKA.findall(riadok.group(1))
+            if len(b) < 2:
+                continue
+            osoba = re.search(r'clovek\.pl\?id=(\d+)[^>]*>([\s\S]*?)</a>', b[0])
+            if not osoba:
+                continue
+            ulohy = [u for u in re.findall(r'aria-label="([^"]+)"', b[1]) if u]
+            p.riesitelia.append((osoba.group(1), _text(osoba.group(2)), ulohy))
+        break
+    return p
+
+
+def detail_projektu(p: ProjektUIS) -> ProjektUIS:
+    zaklad = f"/vv/projekty.pl?zalozka=5;projekt={p.uis_id};podrobnosti=1;lang=sk"
+    return parsuj_detail_projektu(stiahni(zaklad + ";zobrazit=1"), stiahni(zaklad + ";zobrazit=2"), p)
+
+
+@dataclass
+class VysledokProjektov:
+    projekty_roky: int = 0          # počet uložených dvojíc projekt × rok
+    ucasti_nove: int = 0
+    ucitelia: set = field(default_factory=set)
+
+    def sprava(self) -> str:
+        return (f"Uložené: {self.projekty_roky} záznamov projekt × kalendárny rok, {self.ucasti_nove} nových účastí "
+                f"pre {len(self.ucitelia)} učiteľov.\n\nVerejná časť UIS neuvádza vykázané hodiny ani financie. "
+                "Doplňte na karte Projekty sumu pripísanú SPU v jednotlivých rokoch (Sofia/SAP) a hodiny riešiteľov "
+                "(import „Účasť na projektoch“ z UIS). Kým hodiny chýbajú, suma sa rozdelí rovným dielom medzi "
+                "riešiteľov a výsledok je označený ako odhad.")
+
+
+def je_riesitel(p: ProjektUIS, osoba_id: str, ulohy: list[str]) -> bool:
+    return osoba_id == p.garant_id or any(u.lower() in ULOHY_RIESITELA for u in ulohy)
+
+
+def uloz_projekty(db, projekty: list[ProjektUIS], kategorie: dict[str, str], roky: list[int]) -> VysledokProjektov:
+    """Uloží projekty po kalendárnych rokoch a priradí ich učiteľom v databáze (podľa ID v UIS alebo mena).
+
+    * zodpovedný riešiteľ = garant projektu v UIS,
+    * riešiteľ = úloha „Riešiteľ“ alebo „Metodický riešiteľ“ (administratíva, pomocník, pozorovateľ sa nezapočítajú),
+    * existujúce sumy, kapacity a hodiny sa nemenia – doplnia sa iba chýbajúce záznamy.
+    """
+    from .config import NEZAPOCITAT
+    from .models import Projekt, ProjektUcast
+    ucitelia = db.nacitaj("ucitelia")
+    podla_id = {u.osobne_cislo: u for u in ucitelia if u.osobne_cislo}
+    podla_mena = {kluc_mena(u.meno): u for u in ucitelia}
+    res = VysledokProjektov()
+    for p in projekty:
+        typ = kategorie.get(p.druh, kategoria_projektu(p.druh))
+        if je_interny_grant(p.kod) or typ == NEZAPOCITAT or not p.zapocitany_stav:
+            continue
+        clenovia = [(oid, meno, ul) for oid, meno, ul in p.riesitelia if je_riesitel(p, oid, ul)]
+        if p.garant_id and all(oid != p.garant_id for oid, _, _ in clenovia):
+            clenovia.append((p.garant_id, p.garant_meno, []))
+        nasi = []
+        for oid, meno, _ in clenovia:
+            u = podla_id.get(oid) or podla_mena.get(kluc_mena(meno))
+            if u is not None:
+                nasi.append((u, oid == p.garant_id))
+        if not nasi:
+            continue
+        kod = p.kod or f"UIS-{p.uis_id}"
+        for rok in p.roky(roky):
+            proj = db.najdi_projekt(kod, rok)
+            if proj is None:
+                proj = Projekt(kod=kod, rok=rok)
+            proj.nazov, proj.typ, proj.uis_id, proj.pocet_riesitelov = p.nazov, typ, p.uis_id, len(clenovia)
+            db.uloz(proj, commit=False)
+            res.projekty_roky += 1
+            existujuce = {uc.ucitel_id: uc for uc in db.nacitaj_where("ucasti", "projekt_id = ?", (proj.id,))}
+            for u, zodp in nasi:
+                uc = existujuce.get(u.id)
+                if uc is None:
+                    db.uloz(ProjektUcast(projekt_id=proj.id, ucitel_id=u.id, hodiny=0.0, zodpovedny=zodp), commit=False)
+                    res.ucasti_nove += 1
+                elif uc.zodpovedny != zodp:
+                    uc.zodpovedny = zodp
+                    db.uloz(uc, commit=False)
+                res.ucitelia.add(u.id)
+    db.commit()
+    return res

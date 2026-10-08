@@ -33,6 +33,7 @@ Na zálohu alebo odovzdanie údajov kolegovi slúži *Súbor → Exportovať vš
 |---|---|
 | Učitelia a ústavy z UIS | *Súbor → Načítať učiteľov a ústavy z UIS* – vyberiete fakultu, označíte ústavy a program z verejného zoznamu zamestnancov na is.uniag.sk založí učiteľov s titulmi, funkciou a priradeným ústavom (ID osoby v UIS sa použije ako osobné číslo). Úväzok doplníte. |
 | Záverečné práce z UIS | *Súbor → Načítať záverečné práce z UIS* – pre zvolenú fakultu a akademické roky sledovaného obdobia načíta z is.uniag.sk/zp obhájené bakalárske, diplomové a dizertačné práce a priradí ich vedúcim v databáze. |
+| Projekty z UIS | *Súbor → Načítať projekty z UIS* – pre fakultu alebo ústav a kalendárne roky načíta z is.uniag.sk/vv riešené a ukončené externé projekty (pozn. 8 pokynu), zaradí ich do kategórií (zmeníte dvojklikom) a priradí učiteľom: garant = zodpovedný riešiteľ, riešiteľ / metodický riešiteľ = riešiteľ. Sumu pripísanú SPU a vykázané hodiny verejná časť UIS neuvádza – doplníte ich na karte Projekty, resp. importom „Účasť na projektoch“. |
 | Ručne | karta **Vstupné údaje** – tlačidlá Pridať / Upraviť / Vymazať (dvojklik = úprava) |
 | Excel šablóna | *Súbor → Vytvoriť prázdnu Excel šablónu*, vyplniť, *Importovať vyplnenú šablónu* |
 | Export z UIS, CREPČ, Sofia | *Súbor → Importovať export z UIS / CREPČ…* – vyberiete súbor (XLSX/CSV), typ údajov a priradíte stĺpce. Mapovanie si uložíte ako profil a nabudúce ho len zvolíte. |
@@ -76,6 +77,8 @@ Všetky číselné hodnoty sú v *Nastavenia → Parametre metodiky* a dajú sa 
 | čl. 3 ods. 4 – „bonifikuje koeficientom 3“ | hodina výučby v EN = 2 × 3 = 6 h | `en_koef_nasobi_pripravu` (false → 3 h) |
 | čl. 5 ods. 1 A – dvojnásobok hodín zodpovedného riešiteľa | zvyšuje jeho podiel na financiách, nie záťaž v hodinách (čl. 5 ods. 3) | `nasobok_zodpovedny_riesitel` |
 | riešiteľská kapacita | ak nie je zadaná, súčet hodín účastníkov | – |
+| projekt bez vykázaných hodín | suma sa rozdelí rovným dielom medzi riešiteľov projektu v UIS (zodpovedný riešiteľ výskumného projektu 2×); výsledok je označený ako odhad | – |
+| interné granty (GA SPU a pod.), mobilitné a štipendijné programy | nezapočítavajú sa (pozn. 8 uvádza iba externé zdroje) | kategória druhu v okne Projekty z UIS |
 | štandardizované rezíduá | rezíduum / smerodajná odchýlka rezíduí (n − 1) | – |
 
 ## Pre správcu programu

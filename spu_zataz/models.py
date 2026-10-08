@@ -73,6 +73,8 @@ class Projekt:
     rok: int = 0
     suma: float = 0.0               # finančné prostriedky pripísané na účet SPU v danom roku
     kapacita_hodin: float = 0.0     # celková riešiteľská kapacita v UIS (0 = súčet hodín účastníkov)
+    pocet_riesitelov: int = 0       # počet riešiteľov projektu v UIS (aj z iných pracovísk) – pre odhad bez hodín
+    uis_id: str = ""                # ID projektu v UIS (is.uniag.sk/vv)
 
 
 @dataclass

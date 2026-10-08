@@ -94,6 +94,7 @@ class App:
         subor.add_command(label="Importovať vyplnenú šablónu…", command=self.import_sablony)
         subor.add_command(label="Načítať učiteľov a ústavy z UIS (is.uniag.sk)…", command=self.import_uis_zamestnanci)
         subor.add_command(label="Načítať záverečné práce z UIS (is.uniag.sk/zp)…", command=self.import_uis_zp)
+        subor.add_command(label="Načítať projekty z UIS (is.uniag.sk/vv)…", command=self.import_uis_projekty)
         subor.add_command(label="Importovať export z UIS / CREPČ / iný súbor…", command=self.import_mapovanie)
         subor.add_command(label="Načítať publikácie zo Scopus / Web of Science…", command=self.import_biblio)
         subor.add_separator()
@@ -170,6 +171,7 @@ class App:
         ttk.Button(rychly, text="📁 Import šablóny", command=self.import_sablony).pack(side="left", padx=4)
         ttk.Button(rychly, text="👥 Učitelia z UIS", command=self.import_uis_zamestnanci).pack(side="left")
         ttk.Button(rychly, text="🎓 Záverečné práce z UIS", command=self.import_uis_zp).pack(side="left", padx=(4, 0))
+        ttk.Button(rychly, text="🔬 Projekty z UIS", command=self.import_uis_projekty).pack(side="left", padx=(4, 0))
         ttk.Button(rychly, text="🔀 Import z UIS / CREPČ", command=self.import_mapovanie).pack(side="left", padx=4)
         ttk.Button(rychly, text="🌐 Scopus / WoS", command=self.import_biblio).pack(side="left", padx=4)
         ttk.Button(rychly, text="▶ Vypočítať", style="Accent.TButton",
@@ -260,7 +262,8 @@ class App:
             return [("kod", "Kód projektu *", "text", None), ("nazov", "Názov", "text", None),
                     ("typ", "Typ", "combo", config.TYPY_PROJEKTOV), ("rok", "Kalendárny rok *", "int", None),
                     ("suma", "Suma pripísaná SPU v roku (€)", "float", None),
-                    ("kapacita_hodin", "Celková riešiteľská kapacita (h, 0 = súčet)", "float", None)]
+                    ("kapacita_hodin", "Celková riešiteľská kapacita (h, 0 = súčet)", "float", None),
+                    ("pocet_riesitelov", "Počet riešiteľov v UIS (pre odhad bez hodín)", "int", None)]
         if kluc == "ucasti":
             projekty = sorted(((p.id, f"{p.kod} ({p.rok}) – {p.typ}") for p in self.data.projekty), key=lambda x: x[1])
             return [("projekt_id", "Projekt a rok *", "combo_strict", projekty),
@@ -634,6 +637,18 @@ class App:
             roky = self.obdobie.ak_roky
         UISZaverecnePraceDialog(self.root, self.db, roky, self.params,
                                 on_done=lambda: (self.obnov_vsetko(), self.prepocitaj()))
+
+    def import_uis_projekty(self):
+        from .gui_dialogy import UISProjektyDialog
+        try:
+            roky = self._obdobie_z_poli().roky_projekty
+        except ValueError:
+            roky = self.obdobie.roky_projekty
+        if not roky:
+            import datetime as dt
+            r = dt.date.today().year - 1
+            roky = [r - 2, r - 1, r]
+        UISProjektyDialog(self.root, self.db, roky, on_done=lambda: (self.obnov_vsetko(), self.navrhni_obdobie()))
 
     def import_biblio(self):
         from .gui_dialogy import BiblioDialog

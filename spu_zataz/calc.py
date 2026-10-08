@@ -159,7 +159,7 @@ def vypocitaj_ucitelov(data: Data, obd: Obdobie, params: dict) -> list[VysledokU
         if p.rok in pub_set:
             pub_body[p.ucitel_id] += body_publikacie(p, params)
 
-    prj_hod, prj_fin = financie_projektov_ucitelov(data, prj_set, params)
+    prj_hod, prj_fin, prj_odhad = financie_projektov_ucitelov(data, prj_set, params)
 
     out: list[VysledokUcitela] = []
     for u in data.ucitelia:
@@ -181,6 +181,9 @@ def vypocitaj_ucitelov(data: Data, obd: Obdobie, params: dict) -> list[VysledokU
         if r.zahrnuty and r.referencna_vyucba_tyzden and r.vyucba_tyzden > r.referencna_vyucba_tyzden * 1.0001:
             r.upozornenia.append(
                 f"Priama výučba {r.vyucba_tyzden:.1f} h/týž. presahuje referenčných {r.referencna_vyucba_tyzden} h/týž.")
+        if r.zahrnuty and u.id in prj_odhad:
+            r.upozornenia.append("Podiel na financiách projektov je odhadnutý rovným dielom – chýbajú vykázané hodiny "
+                                 "(doplňte ich importom „Účasť na projektoch“ z UIS).")
         if r.zahrnuty and r.pct_spolu > params["hranica_pretazenia"] >= r.pct_vzdelavanie:
             r.upozornenia.append("Vzdelávanie + projekty prekračujú fond pracovného času (čl. 3 ods. 5, čl. 5 ods. 3).")
         out.append(r)
@@ -194,7 +197,7 @@ def vypocitaj_ucitelov(data: Data, obd: Obdobie, params: dict) -> list[VysledokU
 
 
 def financie_projektov_ucitelov(data: Data, roky: set[int], params: dict):
-    """Vráti (súčet hodín, súčet podielov na financiách) za učiteľa v zadaných rokoch.
+    """Vráti (súčet hodín, súčet podielov na financiách, učitelia s odhadnutým podielom) v zadaných rokoch.
 
     Podiel = suma pripísaná SPU × hodiny učiteľa / celková riešiteľská kapacita.
     Zodpovedný riešiteľ výskumného projektu má hodiny vynásobené (čl. 5 ods. 1 A).
@@ -208,16 +211,24 @@ def financie_projektov_ucitelov(data: Data, roky: set[int], params: dict):
 
     hodiny = defaultdict(float)
     financie = defaultdict(float)
+    odhad: set[int] = set()
     vyskumne = set(params["vyskumne_typy_projektov"])
+    nasobok = params["nasobok_zodpovedny_riesitel"]
     for pid, ucasti in ucasti_podla_projektu.items():
         p = projekty[pid]
         kap = kapacita_projektu(p, [u.hodiny for u in ucasti])
         for uc in ucasti:
             hodiny[uc.ucitel_id] += uc.hodiny
-            eff = uc.hodiny * (params["nasobok_zodpovedny_riesitel"] if uc.zodpovedny and p.typ in vyskumne else 1.0)
+            k = nasobok if uc.zodpovedny and p.typ in vyskumne else 1.0
             if kap > 0:
-                financie[uc.ucitel_id] += p.suma * eff / kap
-    return hodiny, financie
+                financie[uc.ucitel_id] += p.suma * uc.hodiny * k / kap
+            elif p.suma > 0:
+                # Hodiny nie sú zadané (verejná časť UIS ich neuvádza): suma sa rozdelí rovným dielom
+                # medzi všetkých riešiteľov projektu v UIS, zodpovedný riešiteľ výskumného projektu 2×.
+                n = max(p.pocet_riesitelov or 0, len(ucasti))
+                financie[uc.ucitel_id] += p.suma * k / n
+                odhad.add(uc.ucitel_id)
+    return hodiny, financie, odhad
 
 
 # ---------------------------------------------------------------- ústavy

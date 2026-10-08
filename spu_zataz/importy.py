@@ -199,6 +199,8 @@ TYPY: dict[str, TypImportu] = {
         Stlpec("rok", "Rok", to_int, True, ("kalendarny rok",)),
         Stlpec("suma", "Suma pripísaná SPU (€)", to_float, False, ("suma", "financie", "pridelene prostriedky", "eur")),
         Stlpec("kapacita_hodin", "Celková riešiteľská kapacita (h)", to_float, False, ("kapacita", "riesitelska kapacita")),
+        Stlpec("pocet_riesitelov", "Počet riešiteľov (UIS)", to_int, False, ("pocet riesitelov",)),
+        Stlpec("uis_id", "ID projektu v UIS", to_str, False, ("id projektu",)),
     ], "Projekty a finančné prostriedky pripísané na účet SPU (Sofia/SAP, UIS)."),
     "ucasti": TypImportu("ucasti", "Účasť na projektoch", [
         Stlpec("kod", "Kód projektu", to_str, True, ("kod", "cislo projektu")),
