@@ -93,6 +93,7 @@ class App:
         subor.add_command(label="Vytvoriť prázdnu Excel šablónu…", command=self.sablona)
         subor.add_command(label="Importovať vyplnenú šablónu…", command=self.import_sablony)
         subor.add_command(label="Načítať učiteľov a ústavy z UIS (is.uniag.sk)…", command=self.import_uis_zamestnanci)
+        subor.add_command(label="Načítať výučbu z UIS (rozvrhy a počty študentov)…", command=self.import_uis_vyucba)
         subor.add_command(label="Načítať záverečné práce z UIS (is.uniag.sk/zp)…", command=self.import_uis_zp)
         subor.add_command(label="Načítať projekty z UIS (is.uniag.sk/vv)…", command=self.import_uis_projekty)
         subor.add_command(label="Importovať export z UIS / CREPČ / iný súbor…", command=self.import_mapovanie)
@@ -170,6 +171,7 @@ class App:
         ttk.Button(rychly, text="📄 Prázdna Excel šablóna", command=self.sablona).pack(side="left")
         ttk.Button(rychly, text="📁 Import šablóny", command=self.import_sablony).pack(side="left", padx=4)
         ttk.Button(rychly, text="👥 Učitelia z UIS", command=self.import_uis_zamestnanci).pack(side="left")
+        ttk.Button(rychly, text="📅 Výučba z UIS", command=self.import_uis_vyucba).pack(side="left", padx=(4, 0))
         ttk.Button(rychly, text="🎓 Záverečné práce z UIS", command=self.import_uis_zp).pack(side="left", padx=(4, 0))
         ttk.Button(rychly, text="🔬 Projekty z UIS", command=self.import_uis_projekty).pack(side="left", padx=(4, 0))
         ttk.Button(rychly, text="🔀 Import z UIS / CREPČ", command=self.import_mapovanie).pack(side="left", padx=4)
@@ -633,6 +635,10 @@ class App:
     def import_uis_zamestnanci(self):
         from .gui_dialogy import UISZamestnanciDialog
         UISZamestnanciDialog(self.root, self.db, on_done=self.obnov_vsetko)
+
+    def import_uis_vyucba(self):
+        from .gui_dialogy import UISVyucbaDialog
+        UISVyucbaDialog(self.root, self.db, self.params, on_done=lambda: (self.obnov_vsetko(), self.navrhni_obdobie()))
 
     def import_uis_zp(self):
         from .gui_dialogy import UISZaverecnePraceDialog

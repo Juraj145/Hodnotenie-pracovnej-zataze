@@ -31,6 +31,7 @@ Na zálohu alebo odovzdanie údajov kolegovi slúži *Súbor → Exportovať vš
 ### Ako zadávať údaje
 | Spôsob | Kde |
 |---|---|
+| Výučba z UIS (rozvrhy) | *Súbor → Načítať výučbu z UIS* – tlačidlom 1 si vytvoríte záložku v prehliadači; po prihlásení do UIS na ňu kliknete, zadáte fakultu a akademické roky a stiahne sa súbor s rozvrhmi fakulty a počtami študentov predmetov. Tlačidlom 2 ho načítate; program prepočíta hodiny a študentov každého učiteľa podľa čl. 3 a 7. |
 | Učitelia a ústavy z UIS | *Súbor → Načítať učiteľov a ústavy z UIS* – vyberiete fakultu, označíte ústavy a program z verejného zoznamu zamestnancov na is.uniag.sk založí učiteľov s titulmi, funkciou a priradeným ústavom (ID osoby v UIS sa použije ako osobné číslo). Úväzok doplníte. |
 | Záverečné práce z UIS | *Súbor → Načítať záverečné práce z UIS* – pre zvolenú fakultu a akademické roky sledovaného obdobia načíta z is.uniag.sk/zp obhájené bakalárske, diplomové a dizertačné práce a priradí ich vedúcim v databáze. |
 | Projekty z UIS | *Súbor → Načítať projekty z UIS* – pre fakultu alebo ústav a kalendárne roky načíta z is.uniag.sk/vv riešené a ukončené externé projekty (pozn. 8 pokynu), zaradí ich do kategórií (zmeníte dvojklikom) a priradí učiteľom: garant = zodpovedný riešiteľ, riešiteľ / metodický riešiteľ = riešiteľ. Sumu pripísanú SPU a vykázané hodiny verejná časť UIS neuvádza – doplníte ich na karte Projekty, resp. importom „Účasť na projektoch“. |
@@ -77,6 +78,10 @@ Všetky číselné hodnoty sú v *Nastavenia → Parametre metodiky* a dajú sa 
 | čl. 3 ods. 4 – „bonifikuje koeficientom 3“ | hodina výučby v EN = 2 × 3 = 6 h | `en_koef_nasobi_pripravu` (false → 3 h) |
 | čl. 5 ods. 1 A – dvojnásobok hodín zodpovedného riešiteľa | zvyšuje jeho podiel na financiách, nie záťaž v hodinách (čl. 5 ods. 3) | `nasobok_zodpovedny_riesitel` |
 | riešiteľská kapacita | ak nie je zadaná, súčet hodín účastníkov | – |
+| hodiny priamej výučby z rozvrhu | týždenná akcia × 13 týždňov, pri párnom/nepárnom týždni × ½; bloková akcia s dátumom sa započíta raz; spoločná akcia („Ďalej vyučujú“) sa delí rovným dielom | `tyzdne_vyucby` (26 = 2 × 13) |
+| odučení študenti (čl. 7 ods. 1.1 b) | študenti predmetu (Úspešnosť študentov v predmetoch) sa rozdelia medzi skupiny prednášok a cvičení podľa kapacity; učiteľ má väčšiu z hodnôt (študenti jeho prednášok / jeho cvičení), aby sa ten istý študent v predmete nerátal dvakrát | – |
+| jazyk výučby | poznámka „Výučba v AJ“ → EN, skupiny mobilitných študentov („mob“, erasmus) → MOB | – |
+| doktorandské predmety | UIS k nim neuvádza počet študentov – započítajú sa iba hodiny | – |
 | projekt bez vykázaných hodín | suma sa rozdelí rovným dielom medzi riešiteľov projektu v UIS (zodpovedný riešiteľ výskumného projektu 2×); výsledok je označený ako odhad | – |
 | interné granty (GA SPU a pod.), mobilitné a štipendijné programy | nezapočítavajú sa (pozn. 8 uvádza iba externé zdroje) | kategória druhu v okne Projekty z UIS |
 | štandardizované rezíduá | rezíduum / smerodajná odchýlka rezíduí (n − 1) | – |

@@ -174,6 +174,7 @@ TYPY: dict[str, TypImportu] = {
         Stlpec("hodiny", "Hodiny priamej výučby za ak. rok", to_float, True,
                ("hodiny", "pocet hodin", "odučené hodiny", "oducene hodiny", "rozsah")),
         Stlpec("pocet_studentov", "Počet študentov", to_float, False, ("studenti", "pocet zapisanych", "zapisani studenti")),
+        Stlpec("studentohodiny", "Študentohodiny (nepovinné)", to_float, False, ("studentohodiny",)),
     ], "Priama výučba v akreditovaných študijných programoch (UIS)."),
     "zaverecne_prace": TypImportu("zaverecne_prace", "Záverečné práce", [
         *_ID_UCITELA,

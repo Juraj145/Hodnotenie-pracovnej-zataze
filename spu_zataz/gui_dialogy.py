@@ -1048,3 +1048,157 @@ class UISProjektyDialog(tk.Toplevel):
             self.on_done()
             messagebox.showinfo("Projekty uložené", res.sprava(), parent=self)
         self._spusti(praca, hotovo)
+
+
+# ====================================================================== výučba z rozvrhov UIS
+class UISVyucbaDialog(tk.Toplevel):
+    """Načítanie výučby zo súboru, ktorý vytvorí záložka „SPU záťaž – export z UIS“."""
+
+    def __init__(self, master, db: Databaza, params: dict, on_done):
+        from . import uis_vyucba
+        self.V = uis_vyucba
+        super().__init__(master)
+        self.title("Výučba z rozvrhov UIS")
+        self.geometry("1180x720")
+        self.transient(master)
+        self.db, self.params, self.on_done = db, params, on_done
+        self.data: dict | None = None
+        self.prep = None
+        self.odbory: dict[str, str] = {}
+
+        top = ttk.Frame(self, padding=10)
+        top.pack(fill="x")
+        ttk.Button(top, text="1  Vytvoriť záložku v prehliadači…", command=self.zalozka).pack(side="left")
+        ttk.Button(top, text="2  Vybrať stiahnutý súbor uis_vyucba_….json", style="Accent.TButton",
+                   command=self.vyber).pack(side="left", padx=8)
+        ttk.Label(top, text="Predvolený študijný odbor (tab. 2):").pack(side="left", padx=(20, 4))
+        self.var_odbor = tk.StringVar()
+        cb = ttk.Combobox(top, textvariable=self.var_odbor, values=list(params["koef_odbor"]), state="readonly", width=30)
+        cb.pack(side="left")
+        cb.bind("<<ComboboxSelected>>", lambda e: self._predvoleny_odbor())
+        ttk.Label(self, padding=(10, 0), foreground="#555", wraplength=1150, justify="left", text=(
+            "Záložka sa spúšťa v prehliadači po prihlásení do UIS. Prečíta rozvrhy fakulty (zoznam rozvrhových akcií) "
+            "a počty študentov predmetov za zvolené akademické roky a stiahne jeden súbor. Prepočet podľa čl. 3 a 7: "
+            "týždenná akcia × 13 týždňov (párny/nepárny týždeň × ½), bloková akcia s dátumom raz, spoločná akcia "
+            "sa delí medzi vyučujúcich; študenti predmetu sa rozdelia medzi skupiny podľa kapacity; poznámka "
+            "„Výučba v AJ“ = EN, skupiny mobilitných študentov = MOB (bonifikácia koef. 3).")).pack(fill="x")
+        self.lbl_info = ttk.Label(self, padding=(10, 6), text="Zatiaľ nie je načítaný žiadny súbor.", foreground="#1E4620")
+        self.lbl_info.pack(fill="x")
+
+        pw = ttk.PanedWindow(self, orient="horizontal")
+        pw.pack(fill="both", expand=True, padx=10)
+        f1 = ttk.LabelFrame(pw, text=" Predmety (dvojklik = študijný odbor) ", padding=4)
+        self.t_pred = Tabulka(f1, [("kod", "Kód", 90), ("na", "Predmet", 230), ("sem", "Semester", 100),
+                                   ("st", "Študentov", 70), ("h", "Hodín", 60), ("jaz", "Jazyk", 70), ("od", "Odbor", 170)],
+                              height=18, on_double=self.zmen_odbor)
+        self.t_pred.pack(fill="both", expand=True)
+        pw.add(f1, weight=3)
+        f2 = ttk.LabelFrame(pw, text=" Učitelia – hodiny priamej výučby za akademický rok ", padding=4)
+        self.t_uc = Tabulka(f2, [("m", "Vyučujúci", 150), ("db", "V databáze", 80), ("r1", "Rok 1", 70), ("r2", "Rok 2", 70),
+                                 ("st", "Študenti spolu", 90)], height=18)
+        self.t_uc.pack(fill="both", expand=True)
+        self.t_uc.tree.tag_configure("mimo", foreground="#999")
+        pw.add(f2, weight=2)
+
+        dole = ttk.Frame(self, padding=10)
+        dole.pack(fill="x")
+        self.lbl = ttk.Label(dole, text="")
+        self.lbl.pack(side="left")
+        ttk.Button(dole, text="Zavrieť", command=self.destroy).pack(side="right")
+        self.btn = ttk.Button(dole, text="💾 Uložiť výučbu do databázy", style="Accent.TButton", command=self.uloz,
+                              state="disabled")
+        self.btn.pack(side="right", padx=6)
+        _centruj(self, master)
+
+    def zalozka(self):
+        p = self.V.stranka_so_zalozkou(config.app_data_dir() / "zalozka_export_uis.html")
+        webbrowser.open(p.as_uri())
+        messagebox.showinfo("Záložka", "V prehliadači sa otvorila stránka so zeleným tlačidlom. Pretiahnite ho na lištu "
+                                       "záložiek, prihláste sa do UIS a kliknite naň. Stiahnutý súbor potom vyberte "
+                                       "tlačidlom 2.", parent=self)
+
+    def vyber(self):
+        path = filedialog.askopenfilename(parent=self, title="Súbor z exportu UIS",
+                                          filetypes=[("Export výučby z UIS", "*.json"), ("Všetky", "*.*")])
+        if not path:
+            return
+        try:
+            self.data = self.V.nacitaj_subor(path)
+            self.prep = self.V.prepocitaj(self.data, int(self.params["tyzdne_vyucby"] // 2))
+        except Exception as e:  # noqa: BLE001
+            messagebox.showerror("Výučba z UIS", str(e), parent=self)
+            return
+        if not self.var_odbor.get():
+            self.var_odbor.set("strojárstvo" if str(self.data.get("fakulta")) == "30" else
+                               "ekonómia a manažment" if str(self.data.get("fakulta")) in ("10", "60") else "")
+        self._predvoleny_odbor()
+        n = sum(len(r["akcie"]) for r in self.data["rozvrhy"])
+        self.lbl_info.config(text=f"Fakulta {self.data.get('fakulta')}, akademické roky {', '.join(self.data['roky'])}: "
+                                  f"{len(self.data['rozvrhy'])} rozvrhov, {n} rozvrhových akcií, "
+                                  f"{len(self.data['predmety'])} predmetov s počtom študentov (export "
+                                  f"{self.data.get('vytvorene', '')[:10]}).  " + " ".join(self.prep.upozornenia))
+        self.btn.config(state="normal")
+
+    def _predvoleny_odbor(self):
+        if not self.prep:
+            return
+        for r in self.prep.riadky:
+            if r.predmet_id not in self.odbory or not self.odbory[r.predmet_id]:
+                self.odbory[r.predmet_id] = self.var_odbor.get()
+        self.zobraz()
+
+    def zobraz(self):
+        from collections import defaultdict
+        pred: dict[str, dict] = {}
+        for r in self.prep.riadky:
+            p = pred.setdefault(r.predmet_id, {"kod": r.kod, "na": r.predmet, "sem": f"{r.semester} {r.ak_rok}",
+                                               "st": (self.data["predmety"].get(r.predmet_id) or {}).get("studentov"),
+                                               "h": 0.0, "jaz": set()})
+            p["h"] += r.hodiny
+            p["jaz"].add(r.jazyk)
+        self._pred_poradie = sorted(pred, key=lambda k: (pred[k]["sem"], pred[k]["na"]))
+        self.t_pred.nastav([(i, [pred[k]["kod"], pred[k]["na"], pred[k]["sem"], "–" if pred[k]["st"] is None else pred[k]["st"],
+                                 fmt(pred[k]["h"], 0), "/".join(sorted(pred[k]["jaz"])), self.odbory.get(k, "")], ())
+                            for i, k in enumerate(self._pred_poradie)])
+        roky = sorted(self.data["roky"])
+        ucitelia = self.db.nacitaj("ucitelia")
+        sumy = defaultdict(lambda: defaultdict(float))
+        stud = defaultdict(float)
+        mena = {}
+        for r in self.prep.riadky:
+            sumy[r.uis_id][r.ak_rok] += r.hodiny
+            stud[r.uis_id] += r.studenti
+            mena[r.uis_id] = r.meno
+        riadky = []
+        for i, (uid, m) in enumerate(sorted(mena.items(), key=lambda x: x[1])):
+            v_db = self.V.najdi_ucitela(ucitelia, uid, m) is not None
+            riadky.append((i, [m, "áno" if v_db else "nie", fmt(sumy[uid].get(roky[0], 0)),
+                               fmt(sumy[uid].get(roky[-1], 0)) if len(roky) > 1 else "–", fmt(stud[uid], 0)],
+                           () if v_db else ("mimo",)))
+        self.t_uc.nastav(riadky)
+        self.t_uc.tree.heading("r1", text=roky[0])
+        if len(roky) > 1:
+            self.t_uc.tree.heading("r2", text=roky[-1])
+        v = sum(1 for r in riadky if r[1][1] == "áno")
+        self.lbl.config(text=f"Vyučujúcich v rozvrhoch: {len(riadky)}, z toho v databáze učiteľov: {v}.")
+
+    def zmen_odbor(self):
+        sel = self.t_pred.vybrane()
+        if not sel:
+            return
+        pid = self._pred_poradie[int(sel[0])]
+
+        def ok(h):
+            self.odbory[pid] = h["odbor"]
+            self.zobraz()
+            return None
+        Formular(self, "Študijný odbor predmetu", [("odbor", "Odbor (tab. 2)", "combo_strict", list(self.params["koef_odbor"]))],
+                 {"odbor": self.odbory.get(pid, "")}, ok)
+
+    def uloz(self):
+        if not self.prep:
+            return
+        res = self.V.uloz(self.db, self.prep, self.odbory)
+        self.on_done()
+        self.zobraz()
+        messagebox.showinfo("Výučba uložená", res.sprava(), parent=self)

@@ -38,6 +38,7 @@ class Vyucba:
     odbor: str = ""                 # kľúč z tab. 2
     hodiny: float = 0.0             # hodiny priamej výučby za akademický rok
     pocet_studentov: float = 0.0
+    studentohodiny: float = 0.0     # z rozvrhu UIS: Σ hodiny akcie × študenti skupiny (0 = hodiny × študenti)
 
 
 @dataclass

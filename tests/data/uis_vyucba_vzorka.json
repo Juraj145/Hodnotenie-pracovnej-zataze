@@ -1,0 +1,4091 @@
+{
+"format": "spu-zataz-uis-vyucba",
+"verzia": 1,
+"vytvorene": "2026-10-08T17:45:34.003Z",
+"fakulta": "30",
+"ustav": "0",
+"roky": [
+"2023/2024",
+"2024/2025"
+],
+"rozvrhy": [
+{
+"id": "3284",
+"nazov": "Rozvrh ZS 2023/2024 TF - denná kombinovaná forma",
+"obdobie": "ZS 2023/2024",
+"ak_rok": "2023/2024",
+"semester": "ZS",
+"forma": "denná kombinovaná",
+"zaciatok": "18.09.2023",
+"koniec": "28.01.2024",
+"akcie": [
+{
+"den": "Pi 22.09.2023",
+"od": "11:00",
+"do": "13:00",
+"predmet_id": "136562",
+"predmet": "Úvod do štúdia",
+"akcia": "Prednáška",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "1b-(adb | kbb | rsb)",
+"kapacita": 80,
+"poznamky": []
+},
+{
+"den": "Pi 06.10.2023",
+"od": "12:30",
+"do": "15:30",
+"predmet_id": "136562",
+"predmet": "Úvod do štúdia",
+"akcia": "Prednáška",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "1b-(adb | kbb | rsb)",
+"kapacita": 80,
+"poznamky": []
+},
+{
+"den": "Pi 20.10.2023",
+"od": "13:30",
+"do": "19:30",
+"predmet_id": "136522",
+"predmet": "Motory na alternatívne palivá",
+"akcia": "Prednáška",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "1b-adb",
+"kapacita": 24,
+"poznamky": []
+},
+{
+"den": "So 21.10.2023",
+"od": "9:00",
+"do": "13:00",
+"predmet_id": "136522",
+"predmet": "Motory na alternatívne palivá",
+"akcia": "Prednáška",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "1b-adb",
+"kapacita": 24,
+"poznamky": []
+},
+{
+"den": "So 04.11.2023",
+"od": "13:30",
+"do": "16:30",
+"predmet_id": "136522",
+"predmet": "Motory na alternatívne palivá",
+"akcia": "Cvičenie",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "1b-adb",
+"kapacita": 24,
+"poznamky": []
+},
+{
+"den": "Ut 16.01.2024",
+"od": "11:00",
+"do": "13:00",
+"predmet_id": "136522",
+"predmet": "Motory na alternatívne palivá",
+"akcia": "Cvičenie",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "1b-adb",
+"kapacita": 24,
+"poznamky": []
+}
+]
+},
+{
+"id": "3283",
+"nazov": "Rozvrh ZS 2023/2024 TF - denná prezenčná forma",
+"obdobie": "ZS 2023/2024",
+"ak_rok": "2023/2024",
+"semester": "ZS",
+"forma": "denná prezenčná",
+"zaciatok": "18.09.2023",
+"koniec": "17.12.2023",
+"akcie": [
+{
+"den": "Po",
+"od": "8:00",
+"do": "9:00",
+"predmet_id": "136562",
+"predmet": "Úvod do štúdia",
+"akcia": "Prednáška",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "1b-(adb | kbb | mpt22 | rsb | vab)",
+"kapacita": 218,
+"poznamky": []
+},
+{
+"den": "Po",
+"od": "15:30",
+"do": "17:30",
+"predmet_id": "136522",
+"predmet": "Motory na alternatívne palivá",
+"akcia": "Prednáška",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "1b-adb",
+"kapacita": 50,
+"poznamky": []
+},
+{
+"den": "Ut",
+"od": "9:00",
+"do": "11:00",
+"predmet_id": "136518",
+"predmet": "Mechanizmy cestných vozidiel",
+"akcia": "Cvičenie",
+"ucitelia": [
+[
+"1585",
+"J. Jablonický"
+]
+],
+"obmedzenie": "1i-adi",
+"kapacita": 24,
+"poznamky": []
+},
+{
+"den": "Ut",
+"od": "13:30",
+"do": "15:30",
+"predmet_id": "136522",
+"predmet": "Motory na alternatívne palivá",
+"akcia": "Cvičenie",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "1b-adb1",
+"kapacita": 24,
+"poznamky": [
+"Párny týždeň (podľa kalendára)"
+]
+},
+{
+"den": "Ut",
+"od": "13:30",
+"do": "15:30",
+"predmet_id": "136522",
+"predmet": "Motory na alternatívne palivá",
+"akcia": "Cvičenie",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "1b-adb2",
+"kapacita": 24,
+"poznamky": [
+"Nepárny týždeň (podľa kalendára)"
+]
+},
+{
+"den": "St",
+"od": "9:00",
+"do": "11:00",
+"predmet_id": "136502",
+"predmet": "Hydraulické systémy",
+"akcia": "Prednáška",
+"ucitelia": [
+[
+"1586",
+"R. Abrahám"
+],
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "2i-adi",
+"kapacita": 20,
+"poznamky": [
+"Voľný deň: 01. 11. 2023"
+]
+},
+{
+"den": "St",
+"od": "13:30",
+"do": "15:30",
+"predmet_id": "136522",
+"predmet": "Motory na alternatívne palivá",
+"akcia": "Prednáška",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "z-mob",
+"kapacita": 24,
+"poznamky": [
+"Voľný deň: 01. 11. 2023"
+]
+},
+{
+"den": "St",
+"od": "15:30",
+"do": "17:30",
+"predmet_id": "136518",
+"predmet": "Mechanizmy cestných vozidiel",
+"akcia": "Prednáška",
+"ucitelia": [
+[
+"1585",
+"J. Jablonický"
+]
+],
+"obmedzenie": "1i-adi",
+"kapacita": 24,
+"poznamky": [
+"Voľný deň: 01. 11. 2023"
+]
+},
+{
+"den": "St",
+"od": "15:30",
+"do": "16:30",
+"predmet_id": "136522",
+"predmet": "Motory na alternatívne palivá",
+"akcia": "Cvičenie",
+"ucitelia": [
+[
+"71515",
+"R. Kollárik"
+]
+],
+"obmedzenie": "z-mob",
+"kapacita": 24,
+"poznamky": [
+"Voľný deň: 01. 11. 2023"
+]
+},
+{
+"den": "Št",
+"od": "7:00",
+"do": "9:00",
+"predmet_id": "136502",
+"predmet": "Hydraulické systémy",
+"akcia": "Cvičenie",
+"ucitelia": [
+[
+"1586",
+"R. Abrahám"
+],
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "2i-adi",
+"kapacita": 20,
+"poznamky": []
+}
+]
+},
+{
+"id": "3443",
+"nazov": "Rozvrh ZS 2023/2024 PHD TF - denná prezenčná forma",
+"obdobie": "2023/2024 - doktorandské štúdiá",
+"ak_rok": "2023/2024",
+"semester": "PhD",
+"forma": "denná prezenčná",
+"zaciatok": "18.09.2023",
+"koniec": "17.12.2023",
+"akcie": [
+{
+"den": "Po",
+"od": "10:00",
+"do": "13:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (3)",
+"akcia": "",
+"ucitelia": [
+[
+"1518",
+"M. Kotus"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Po 23. 10. 2023 MF-32 - Tribometria, M. KotusPo 6. 11. 2023 MF-32 - Tribometria, M. Kotus"
+]
+},
+{
+"den": "Po",
+"od": "11:00",
+"do": "12:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (1)",
+"akcia": "",
+"ucitelia": [
+[
+"1518",
+"M. Kotus"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Po 4. 12. 2023 MF-32 - Tribometria, M. Kotus"
+]
+},
+{
+"den": "Po",
+"od": "11:00",
+"do": "13:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (2)",
+"akcia": "",
+"ucitelia": [
+[
+"1518",
+"M. Kotus"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Po 30. 10. 2023 MF-32 - Tribometria, M. KotusPo 13. 11. 2023 MF-32 - Tribometria, M. KotusPo 27. 11. 2023 MF-32 - Tribometria, M. Kotus"
+]
+},
+{
+"den": "Ut",
+"od": "9:00",
+"do": "13:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (4)",
+"akcia": "",
+"ucitelia": [
+[
+"1228",
+"R. Majdan"
+],
+[
+"1228",
+"R. Majdan"
+],
+[
+"1580",
+"Z. Tkáč"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+},
+{
+"den": "St",
+"od": "9:00",
+"do": "13:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (6)",
+"akcia": "",
+"ucitelia": [
+[
+"1228",
+"R. Majdan"
+],
+[
+"1228",
+"R. Majdan"
+],
+[
+"1228",
+"R. Majdan"
+],
+[
+"1580",
+"Z. Tkáč"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+},
+{
+"den": "Št",
+"od": "9:00",
+"do": "12:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (7)",
+"akcia": "",
+"ucitelia": [
+[
+"1543",
+"V. Vozárová"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Št 30. 11. 2023 MF-45 - Fyzikálne metódy merania, V. Vozárová"
+]
+},
+{
+"den": "Št",
+"od": "9:00",
+"do": "11:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (8)",
+"akcia": "",
+"ucitelia": [
+[
+"1543",
+"V. Vozárová"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Št 26. 10. 2023 MF-45 - Fyzikálne metódy merania, V. Vozárová"
+]
+},
+{
+"den": "Št",
+"od": "9:00",
+"do": "13:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (9)",
+"akcia": "",
+"ucitelia": [
+[
+"1543",
+"V. Vozárová"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Št 9. 11. 2023 MF-45 - Fyzikálne metódy merania, V. VozárováŠt 23. 11. 2023 MF-45 - Fyzikálne metódy merania, V. Vozárová"
+]
+},
+{
+"den": "Št",
+"od": "9:00",
+"do": "14:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (10)",
+"akcia": "",
+"ucitelia": [
+[
+"1228",
+"R. Majdan"
+],
+[
+"1228",
+"R. Majdan"
+],
+[
+"1228",
+"R. Majdan"
+],
+[
+"1580",
+"Z. Tkáč"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+},
+{
+"den": "Pi",
+"od": "9:00",
+"do": "13:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (11)",
+"akcia": "",
+"ucitelia": [
+[
+"1228",
+"R. Majdan"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Pi 10. 11. 2023 --inde-- - Dopravná a manipulačná technika, R. Majdan"
+]
+}
+]
+},
+{
+"id": "3403",
+"nazov": "Rozvrh ZS 2023/2024 PHD TF - externá prezenčná forma",
+"obdobie": "2023/2024 - doktorandské štúdiá",
+"ak_rok": "2023/2024",
+"semester": "PhD",
+"forma": "externá prezenčná",
+"zaciatok": "18.09.2023",
+"koniec": "04.02.2024",
+"akcie": [
+{
+"den": "Ut",
+"od": "8:00",
+"do": "11:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (2)",
+"akcia": "",
+"ucitelia": [
+[
+"1241",
+"J. Jobbágy"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Ut 30. 1. 2024 AC-01 - Technický manažment závlahových systémov, J. Jobbágy"
+]
+},
+{
+"den": "Ut",
+"od": "11:00",
+"do": "13:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (1)",
+"akcia": "",
+"ucitelia": [
+[
+"1530",
+"R. Gálik"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Ut 31. 10. 2023 --inde-- - Technológia a technika v chove zvierat, R. Gálik"
+]
+},
+{
+"den": "Št",
+"od": "8:00",
+"do": "13:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (4)",
+"akcia": "",
+"ucitelia": [
+[
+"1241",
+"J. Jobbágy"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Št 18. 1. 2024 AC-01 - Technický manažment závlahových systémov, J. Jobbágy"
+]
+},
+{
+"den": "Št",
+"od": "12:00",
+"do": "17:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (3)",
+"akcia": "",
+"ucitelia": [
+[
+"1241",
+"J. Jobbágy"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Št 25. 1. 2024 --inde-- - Technický manažment závlahových systémov, J. Jobbágy"
+]
+},
+{
+"den": "Pi",
+"od": "9:00",
+"do": "12:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (5)",
+"akcia": "",
+"ucitelia": [
+[
+"1530",
+"R. Gálik"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Pi 8. 12. 2023 MF-15 - Technológia a technika v chove zvierat, R. Gálik"
+]
+},
+{
+"den": "Pi",
+"od": "9:00",
+"do": "13:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (6)",
+"akcia": "",
+"ucitelia": [
+[
+"1530",
+"R. Gálik"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Pi 24. 11. 2023 MF-15 - Technológia a technika v chove zvierat, R. GálikPi 1. 12. 2023 MF-15 - Technológia a technika v chove zvierat, R. Gálik"
+]
+}
+]
+},
+{
+"id": "3503",
+"nazov": "Rozvrh LS 2023/2024 PHD TF - externá prezenčná forma",
+"obdobie": "2023/2024 - doktorandské štúdiá",
+"ak_rok": "2023/2024",
+"semester": "PhD",
+"forma": "externá prezenčná",
+"zaciatok": "12.02.2024",
+"koniec": "12.05.2024",
+"akcie": [
+{
+"den": "Po",
+"od": "8:00",
+"do": "12:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (1)",
+"akcia": "",
+"ucitelia": [
+[
+"1242",
+"J. Galambošová"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Po 26. 2. 2024 --inde-- - Technika a technológie v presnom poľnohospodárstve, J. GalambošováPo 4. 3. 2024 --inde-- - Technika a technológie v presnom poľnohospodárstve, J. Galambošová"
+]
+},
+{
+"den": "Po",
+"od": "8:00",
+"do": "13:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (2)",
+"akcia": "",
+"ucitelia": [
+[
+"1242",
+"J. Galambošová"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Po 19. 2. 2024 --inde-- - Technika a technológie v presnom poľnohospodárstve, J. Galambošová"
+]
+},
+{
+"den": "Ut",
+"od": "7:30",
+"do": "12:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (6)",
+"akcia": "",
+"ucitelia": [
+[
+"1242",
+"J. Galambošová"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Ut 9. 4. 2024 --inde-- - Plánovanie a vyhodnocovanie experimentov, J. Galambošová"
+]
+},
+{
+"den": "Ut",
+"od": "9:00",
+"do": "12:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (4)",
+"akcia": "",
+"ucitelia": [
+[
+"1451",
+"D. Hrubý"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Ut 27. 2. 2024 --inde-- - Automatizácia meracích a riadiacich procesov, D. HrubýUt 5. 3. 2024 --inde-- - Automatizácia meracích a riadiacich procesov, D. HrubýUt 12. 3. 2024 --inde-- - Automatizácia meracích a riadiacich procesov, D. HrubýUt 19. 3. 2024 --inde-- - Automatizácia meracích a riadiacich procesov, D. HrubýUt 26. 3. 2024 --inde-- - Automatizácia meracích a riadiacich procesov, D. HrubýUt 2. 4. 2024 --inde-- - Automatizácia meracích a riadiacich procesov, D. Hrubý"
+]
+},
+{
+"den": "Ut",
+"od": "9:00",
+"do": "11:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (5)",
+"akcia": "",
+"ucitelia": [
+[
+"1451",
+"D. Hrubý"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Ut 13. 2. 2024 --inde-- - Automatizácia meracích a riadiacich procesov, D. HrubýUt 20. 2. 2024 --inde-- - Automatizácia meracích a riadiacich procesov, D. HrubýUt 16. 4. 2024 --inde-- - Automatizácia meracích a riadiacich procesov, D. HrubýUt 23. 4. 2024 --inde-- - Automatizácia meracích a riadiacich procesov, D. Hrubý"
+]
+},
+{
+"den": "Ut",
+"od": "11:00",
+"do": "15:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (3)",
+"akcia": "",
+"ucitelia": [
+[
+"1242",
+"J. Galambošová"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Ut 16. 4. 2024 --inde-- - Plánovanie a vyhodnocovanie experimentov, J. GalambošováUt 23. 4. 2024 --inde-- - Plánovanie a vyhodnocovanie experimentov, J. Galambošová"
+]
+},
+{
+"den": "Št",
+"od": "8:00",
+"do": "15:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (7)",
+"akcia": "",
+"ucitelia": [
+[
+"1242",
+"J. Galambošová"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Št 25. 4. 2024 --inde-- - Technika a technológie v presnom poľnohospodárstve, J. Galambošová"
+]
+},
+{
+"den": "Pi",
+"od": "8:00",
+"do": "15:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (9)",
+"akcia": "",
+"ucitelia": [
+[
+"1242",
+"J. Galambošová"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Pi 26. 4. 2024 --inde-- - Technika a technológie v presnom poľnohospodárstve, J. Galambošová"
+]
+},
+{
+"den": "Pi",
+"od": "9:00",
+"do": "11:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (8)",
+"akcia": "",
+"ucitelia": [
+[
+"102",
+"Z. Palková"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Pi 3. 5. 2024 MF-21 - Aplikovaná informatika, Z. Palková"
+]
+},
+{
+"den": "Pi",
+"od": "9:00",
+"do": "12:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (10)",
+"akcia": "",
+"ucitelia": [
+[
+"102",
+"Z. Palková"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Pi 16. 2. 2024 MF-21 - Aplikovaná informatika, Z. PalkováPi 8. 3. 2024 MF-21 - Aplikovaná informatika, Z. PalkováPi 22. 3. 2024 MF-21 - Aplikovaná informatika, Z. PalkováPi 26. 4. 2024 MF-21 - Aplikovaná informatika, Z. Palková"
+]
+}
+]
+},
+{
+"id": "3286",
+"nazov": "Rozvrh LS 2023/2024 TF - denná prezenčná forma",
+"obdobie": "LS 2023/2024",
+"ak_rok": "2023/2024",
+"semester": "LS",
+"forma": "denná prezenčná",
+"zaciatok": "12.02.2024",
+"koniec": "12.05.2024",
+"akcie": [
+{
+"den": "Po",
+"od": "7:30",
+"do": "11:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (10)",
+"akcia": "",
+"ucitelia": [
+[
+"1518",
+"M. Kotus"
+],
+[
+"1518",
+"M. Kotus"
+],
+[
+"1585",
+"J. Jablonický"
+],
+[
+"196",
+"J. Tulík"
+],
+[
+"1168",
+"R. Bernát"
+],
+[
+"226",
+"Z. Záležák"
+],
+[
+"1518",
+"M. Kotus"
+],
+[
+"1585",
+"J. Jablonický"
+],
+[
+"196",
+"J. Tulík"
+],
+[
+"1168",
+"R. Bernát"
+],
+[
+"226",
+"Z. Záležák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+},
+{
+"den": "Po",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (11)",
+"akcia": "",
+"ucitelia": [
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1448",
+"I. Karandušovská"
+],
+[
+"1461",
+"M. Žitňák"
+],
+[
+"1267",
+"J. Gaduš"
+],
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1448",
+"I. Karandušovská"
+],
+[
+"1461",
+"M. Žitňák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+},
+{
+"den": "Po",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (12)",
+"akcia": "",
+"ucitelia": [
+[
+"231",
+"T. Giertl"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Po 25. 3. 2024 --inde-- - Kurz efektívneho využívania obnoviteľných zdrojov energie, T. GiertlPo 1. 4. 2024 --inde-- - Kurz efektívneho využívania obnoviteľných zdrojov energie, T. Giertl"
+]
+},
+{
+"den": "Po",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (13)",
+"akcia": "",
+"ucitelia": [
+[
+"1325",
+"M. Macák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Po 15. 4. 2024 --inde-- - Kurz presného poľnohospodárstva, M. MacákPo 22. 4. 2024 --inde-- - Kurz presného poľnohospodárstva, M. Macák"
+]
+},
+{
+"den": "Po",
+"od": "9:00",
+"do": "11:00",
+"predmet_id": "136314",
+"predmet": "Automobilové spaľovacie motory",
+"akcia": "Cvičenie",
+"ucitelia": [
+[
+"1585",
+"J. Jablonický"
+]
+],
+"obmedzenie": "2b-adb",
+"kapacita": 24,
+"poznamky": [
+"Voľný deň: 01. 04. 2024"
+]
+},
+{
+"den": "Po",
+"od": "13:30",
+"do": "15:30",
+"predmet_id": "136314",
+"predmet": "Automobilové spaľovacie motory",
+"akcia": "Prednáška",
+"ucitelia": [
+[
+"1585",
+"J. Jablonický"
+]
+],
+"obmedzenie": "1b-vab | 2b-adb",
+"kapacita": 80,
+"poznamky": [
+"Voľný deň: 01. 04. 2024"
+]
+},
+{
+"den": "Ut",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (22)",
+"akcia": "",
+"ucitelia": [
+[
+"1518",
+"M. Kotus"
+],
+[
+"1518",
+"M. Kotus"
+],
+[
+"1585",
+"J. Jablonický"
+],
+[
+"196",
+"J. Tulík"
+],
+[
+"1168",
+"R. Bernát"
+],
+[
+"226",
+"Z. Záležák"
+],
+[
+"1518",
+"M. Kotus"
+],
+[
+"1585",
+"J. Jablonický"
+],
+[
+"196",
+"J. Tulík"
+],
+[
+"1168",
+"R. Bernát"
+],
+[
+"226",
+"Z. Záležák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+},
+{
+"den": "Ut",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (23)",
+"akcia": "",
+"ucitelia": [
+[
+"231",
+"T. Giertl"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Ut 26. 3. 2024 --inde-- - Kurz efektívneho využívania obnoviteľných zdrojov energie, T. GiertlUt 2. 4. 2024 --inde-- - Kurz efektívneho využívania obnoviteľných zdrojov energie, T. Giertl"
+]
+},
+{
+"den": "Ut",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (24)",
+"akcia": "",
+"ucitelia": [
+[
+"1325",
+"M. Macák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Ut 16. 4. 2024 --inde-- - Kurz presného poľnohospodárstva, M. MacákUt 23. 4. 2024 --inde-- - Kurz presného poľnohospodárstva, M. Macák"
+]
+},
+{
+"den": "Ut",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (25)",
+"akcia": "",
+"ucitelia": [
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1448",
+"I. Karandušovská"
+],
+[
+"1461",
+"M. Žitňák"
+],
+[
+"1267",
+"J. Gaduš"
+],
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1448",
+"I. Karandušovská"
+],
+[
+"1461",
+"M. Žitňák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+},
+{
+"den": "Ut",
+"od": "11:00",
+"do": "13:00",
+"predmet_id": "136338",
+"predmet": "Legislatíva v cestnej doprave",
+"akcia": "Cvičenie",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "1i-adi",
+"kapacita": 24,
+"poznamky": []
+},
+{
+"den": "Ut",
+"od": "13:30",
+"do": "15:30",
+"predmet_id": "136314",
+"predmet": "Automobilové spaľovacie motory",
+"akcia": "Cvičenie",
+"ucitelia": [
+[
+"1585",
+"J. Jablonický"
+]
+],
+"obmedzenie": "1b-vab",
+"kapacita": 24,
+"poznamky": []
+},
+{
+"den": "St",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (36)",
+"akcia": "",
+"ucitelia": [
+[
+"1518",
+"M. Kotus"
+],
+[
+"1518",
+"M. Kotus"
+],
+[
+"1585",
+"J. Jablonický"
+],
+[
+"196",
+"J. Tulík"
+],
+[
+"1168",
+"R. Bernát"
+],
+[
+"226",
+"Z. Záležák"
+],
+[
+"1518",
+"M. Kotus"
+],
+[
+"1585",
+"J. Jablonický"
+],
+[
+"196",
+"J. Tulík"
+],
+[
+"1168",
+"R. Bernát"
+],
+[
+"226",
+"Z. Záležák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+},
+{
+"den": "St",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (37)",
+"akcia": "",
+"ucitelia": [
+[
+"1325",
+"M. Macák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"St 17. 4. 2024 --inde-- - Kurz presného poľnohospodárstva, M. MacákSt 24. 4. 2024 --inde-- - Kurz presného poľnohospodárstva, M. Macák"
+]
+},
+{
+"den": "St",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (38)",
+"akcia": "",
+"ucitelia": [
+[
+"231",
+"T. Giertl"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"St 27. 3. 2024 --inde-- - Kurz efektívneho využívania obnoviteľných zdrojov energie, T. GiertlSt 3. 4. 2024 --inde-- - Kurz efektívneho využívania obnoviteľných zdrojov energie, T. Giertl"
+]
+},
+{
+"den": "St",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (39)",
+"akcia": "",
+"ucitelia": [
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1448",
+"I. Karandušovská"
+],
+[
+"1461",
+"M. Žitňák"
+],
+[
+"1267",
+"J. Gaduš"
+],
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1448",
+"I. Karandušovská"
+],
+[
+"1461",
+"M. Žitňák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+},
+{
+"den": "St",
+"od": "11:00",
+"do": "13:00",
+"predmet_id": "136338",
+"predmet": "Legislatíva v cestnej doprave",
+"akcia": "Prednáška",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "1i-adi",
+"kapacita": 50,
+"poznamky": [
+"Voľný deň: 01. 05. 2024, 08. 05. 2024"
+]
+},
+{
+"den": "Št",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (42)",
+"akcia": "",
+"ucitelia": [
+[
+"1325",
+"M. Macák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Št 18. 4. 2024 --inde-- - Kurz presného poľnohospodárstva, M. MacákŠt 25. 4. 2024 --inde-- - Kurz presného poľnohospodárstva, M. Macák"
+]
+},
+{
+"den": "Št",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (43)",
+"akcia": "",
+"ucitelia": [
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1448",
+"I. Karandušovská"
+],
+[
+"1461",
+"M. Žitňák"
+],
+[
+"1267",
+"J. Gaduš"
+],
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1448",
+"I. Karandušovská"
+],
+[
+"1461",
+"M. Žitňák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+},
+{
+"den": "Št",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (44)",
+"akcia": "",
+"ucitelia": [
+[
+"1518",
+"M. Kotus"
+],
+[
+"1518",
+"M. Kotus"
+],
+[
+"1585",
+"J. Jablonický"
+],
+[
+"196",
+"J. Tulík"
+],
+[
+"1168",
+"R. Bernát"
+],
+[
+"226",
+"Z. Záležák"
+],
+[
+"1518",
+"M. Kotus"
+],
+[
+"1585",
+"J. Jablonický"
+],
+[
+"196",
+"J. Tulík"
+],
+[
+"1168",
+"R. Bernát"
+],
+[
+"226",
+"Z. Záležák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+},
+{
+"den": "Št",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (45)",
+"akcia": "",
+"ucitelia": [
+[
+"231",
+"T. Giertl"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Št 28. 3. 2024 --inde-- - Kurz efektívneho využívania obnoviteľných zdrojov energie, T. GiertlŠt 4. 4. 2024 --inde-- - Kurz efektívneho využívania obnoviteľných zdrojov energie, T. Giertl"
+]
+},
+{
+"den": "Pi",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (46)",
+"akcia": "",
+"ucitelia": [
+[
+"231",
+"T. Giertl"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Pi 29. 3. 2024 --inde-- - Kurz efektívneho využívania obnoviteľných zdrojov energie, T. GiertlPi 5. 4. 2024 --inde-- - Kurz efektívneho využívania obnoviteľných zdrojov energie, T. Giertl"
+]
+},
+{
+"den": "Pi",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (47)",
+"akcia": "",
+"ucitelia": [
+[
+"1325",
+"M. Macák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Pi 19. 4. 2024 --inde-- - Kurz presného poľnohospodárstva, M. MacákPi 26. 4. 2024 --inde-- - Kurz presného poľnohospodárstva, M. Macák"
+]
+},
+{
+"den": "Pi",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (48)",
+"akcia": "",
+"ucitelia": [
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1448",
+"I. Karandušovská"
+],
+[
+"1461",
+"M. Žitňák"
+],
+[
+"1267",
+"J. Gaduš"
+],
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1448",
+"I. Karandušovská"
+],
+[
+"1461",
+"M. Žitňák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+},
+{
+"den": "Pi",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (49)",
+"akcia": "",
+"ucitelia": [
+[
+"1518",
+"M. Kotus"
+],
+[
+"1518",
+"M. Kotus"
+],
+[
+"1585",
+"J. Jablonický"
+],
+[
+"196",
+"J. Tulík"
+],
+[
+"1168",
+"R. Bernát"
+],
+[
+"226",
+"Z. Záležák"
+],
+[
+"1518",
+"M. Kotus"
+],
+[
+"1585",
+"J. Jablonický"
+],
+[
+"196",
+"J. Tulík"
+],
+[
+"1168",
+"R. Bernát"
+],
+[
+"226",
+"Z. Záležák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+}
+]
+},
+{
+"id": "3653",
+"nazov": "Rozvrh ZS 2024/2025 TF - denná kombinovaná forma",
+"obdobie": "ZS 2024/2025",
+"ak_rok": "2024/2025",
+"semester": "ZS",
+"forma": "denná kombinovaná",
+"zaciatok": "16.09.2024",
+"koniec": "15.12.2024",
+"akcie": [
+{
+"den": "Pi 20.09.2024",
+"od": "15:30",
+"do": "18:30",
+"predmet_id": "138970",
+"predmet": "Úvod do štúdia",
+"akcia": "Prednáška",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "1b-(adb | kbb | rsb)",
+"kapacita": 90,
+"poznamky": []
+},
+{
+"den": "So 21.09.2024",
+"od": "7:00",
+"do": "9:00",
+"predmet_id": "138930",
+"predmet": "Motory na alternatívne palivá",
+"akcia": "Prednáška",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "1b-adb",
+"kapacita": 50,
+"poznamky": []
+},
+{
+"den": "So 28.09.2024",
+"od": "13:30",
+"do": "17:30",
+"predmet_id": "138910",
+"predmet": "Hydraulické systémy",
+"akcia": "Prednáška",
+"ucitelia": [
+[
+"1586",
+"R. Abrahám"
+]
+],
+"obmedzenie": "2i-kbi2",
+"kapacita": 999,
+"poznamky": []
+},
+{
+"den": "Pi 04.10.2024",
+"od": "17:30",
+"do": "19:30",
+"predmet_id": "138970",
+"predmet": "Úvod do štúdia",
+"akcia": "Prednáška",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "1b-(adb | kbb | rsb)",
+"kapacita": 90,
+"poznamky": []
+},
+{
+"den": "Pi 11.10.2024",
+"od": "13:30",
+"do": "15:30",
+"predmet_id": "138910",
+"predmet": "Hydraulické systémy",
+"akcia": "Prednáška",
+"ucitelia": [
+[
+"1586",
+"R. Abrahám"
+]
+],
+"obmedzenie": "2i-kbi2",
+"kapacita": 999,
+"poznamky": []
+},
+{
+"den": "Pi 18.10.2024",
+"od": "13:30",
+"do": "17:30",
+"predmet_id": "138930",
+"predmet": "Motory na alternatívne palivá",
+"akcia": "Prednáška",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "1b-adb",
+"kapacita": 50,
+"poznamky": []
+},
+{
+"den": "So 19.10.2024",
+"od": "9:00",
+"do": "13:00",
+"predmet_id": "138930",
+"predmet": "Motory na alternatívne palivá",
+"akcia": "Prednáška",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "1b-adb",
+"kapacita": 50,
+"poznamky": []
+},
+{
+"den": "Pi 25.10.2024",
+"od": "15:30",
+"do": "19:30",
+"predmet_id": "138910",
+"predmet": "Hydraulické systémy",
+"akcia": "Prednáška",
+"ucitelia": [
+[
+"1586",
+"R. Abrahám"
+]
+],
+"obmedzenie": "2i-kbi2",
+"kapacita": 999,
+"poznamky": []
+},
+{
+"den": "So 09.11.2024",
+"od": "13:30",
+"do": "16:30",
+"predmet_id": "138930",
+"predmet": "Motory na alternatívne palivá",
+"akcia": "Cvičenie",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "1b-adb",
+"kapacita": 24,
+"poznamky": []
+},
+{
+"den": "Pi 15.11.2024",
+"od": "13:30",
+"do": "17:30",
+"predmet_id": "138910",
+"predmet": "Hydraulické systémy",
+"akcia": "Cvičenie",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "2i-kbi2",
+"kapacita": 22,
+"poznamky": []
+},
+{
+"den": "So 30.11.2024",
+"od": "9:00",
+"do": "13:00",
+"predmet_id": "138910",
+"predmet": "Hydraulické systémy",
+"akcia": "Cvičenie",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "2i-kbi2",
+"kapacita": 22,
+"poznamky": []
+},
+{
+"den": "Pi 06.12.2024",
+"od": "13:30",
+"do": "15:30",
+"predmet_id": "138930",
+"predmet": "Motory na alternatívne palivá",
+"akcia": "Cvičenie",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "1b-adb",
+"kapacita": 24,
+"poznamky": []
+},
+{
+"den": "Pi 06.12.2024",
+"od": "15:30",
+"do": "17:30",
+"predmet_id": "138910",
+"predmet": "Hydraulické systémy",
+"akcia": "Cvičenie",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "2i-kbi2",
+"kapacita": 22,
+"poznamky": []
+}
+]
+},
+{
+"id": "3652",
+"nazov": "Rozvrh ZS 2024/2025 TF - denná prezenčná forma",
+"obdobie": "ZS 2024/2025",
+"ak_rok": "2024/2025",
+"semester": "ZS",
+"forma": "denná prezenčná",
+"zaciatok": "16.09.2024",
+"koniec": "15.12.2024",
+"akcie": [
+{
+"den": "Po",
+"od": "8:00",
+"do": "10:00",
+"predmet_id": "138970",
+"predmet": "Úvod do štúdia",
+"akcia": "Prednáška",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "1b-(adb | kbb | mpt22 | rsb)",
+"kapacita": 218,
+"poznamky": [
+"Párny týždeň (podľa kalendára)"
+]
+},
+{
+"den": "Po",
+"od": "10:00",
+"do": "12:00",
+"predmet_id": "138910",
+"predmet": "Hydraulické systémy",
+"akcia": "Prednáška",
+"ucitelia": [
+[
+"1586",
+"R. Abrahám"
+],
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "2i-adi",
+"kapacita": 50,
+"poznamky": []
+},
+{
+"den": "Po",
+"od": "13:00",
+"do": "15:00",
+"predmet_id": "138930",
+"predmet": "Motory na alternatívne palivá",
+"akcia": "Cvičenie",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "2b-kbb | 3b-mpt22",
+"kapacita": 24,
+"poznamky": [
+"Nepárny týždeň (podľa kalendára)"
+]
+},
+{
+"den": "Po",
+"od": "15:00",
+"do": "17:00",
+"predmet_id": "138910",
+"predmet": "Hydraulické systémy",
+"akcia": "Cvičenie",
+"ucitelia": [
+[
+"1586",
+"R. Abrahám"
+],
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "2i-adi",
+"kapacita": 22,
+"poznamky": []
+},
+{
+"den": "Ut",
+"od": "8:00",
+"do": "10:00",
+"predmet_id": "138930",
+"predmet": "Motory na alternatívne palivá",
+"akcia": "Prednáška",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "1b-adb | 2b-kbb | 2b-map | 3b-mpt22",
+"kapacita": 80,
+"poznamky": []
+},
+{
+"den": "Ut",
+"od": "8:00",
+"do": "10:00",
+"predmet_id": "138926",
+"predmet": "Mechanizmy cestných vozidiel",
+"akcia": "Cvičenie",
+"ucitelia": [
+[
+"1585",
+"J. Jablonický"
+],
+[
+"74468",
+"S. Bártová"
+]
+],
+"obmedzenie": "1i-adi",
+"kapacita": 24,
+"poznamky": []
+},
+{
+"den": "Ut",
+"od": "10:00",
+"do": "12:00",
+"predmet_id": "138910",
+"predmet": "Hydraulické systémy",
+"akcia": "Cvičenie",
+"ucitelia": [
+[
+"1586",
+"R. Abrahám"
+],
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "2i-adi",
+"kapacita": 22,
+"poznamky": []
+},
+{
+"den": "Ut",
+"od": "15:00",
+"do": "17:00",
+"predmet_id": "138930",
+"predmet": "Motory na alternatívne palivá",
+"akcia": "Cvičenie",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "1b-adb1",
+"kapacita": 24,
+"poznamky": [
+"Párny týždeň (podľa kalendára)"
+]
+},
+{
+"den": "Ut",
+"od": "15:00",
+"do": "17:00",
+"predmet_id": "138930",
+"predmet": "Motory na alternatívne palivá",
+"akcia": "Cvičenie",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "1b-adb2",
+"kapacita": 24,
+"poznamky": [
+"Nepárny týždeň (podľa kalendára)"
+]
+},
+{
+"den": "St",
+"od": "8:00",
+"do": "10:00",
+"predmet_id": "138930",
+"predmet": "Motory na alternatívne palivá",
+"akcia": "Cvičenie",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+],
+[
+"93982",
+"M. Nagy"
+]
+],
+"obmedzenie": "1b-adb3",
+"kapacita": 24,
+"poznamky": [
+"Párny týždeň (podľa kalendára)"
+]
+},
+{
+"den": "St",
+"od": "15:00",
+"do": "17:00",
+"predmet_id": "138926",
+"predmet": "Mechanizmy cestných vozidiel",
+"akcia": "Prednáška",
+"ucitelia": [
+[
+"1585",
+"J. Jablonický"
+]
+],
+"obmedzenie": "1i-adi",
+"kapacita": 24,
+"poznamky": []
+}
+]
+},
+{
+"id": "3824",
+"nazov": "Rozvrh ZS 2024/2025 PHD TF - denná prezenčná forma",
+"obdobie": "2024/2025 - doktorandské štúdiá",
+"ak_rok": "2024/2025",
+"semester": "PhD",
+"forma": "denná prezenčná",
+"zaciatok": "16.09.2024",
+"koniec": "15.12.2024",
+"akcie": [
+{
+"den": "Po",
+"od": "8:00",
+"do": "10:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (2)",
+"akcia": "",
+"ucitelia": [
+[
+"1585",
+"J. Jablonický"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Po 30. 9. 2024 --inde-- - Vplyv konštrukcie spaľovacích motorov na ekológiu, J. Jablonický"
+]
+},
+{
+"den": "Po",
+"od": "8:00",
+"do": "12:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (4)",
+"akcia": "",
+"ucitelia": [
+[
+"1585",
+"J. Jablonický"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Po 7. 10. 2024 --inde-- - Vplyv konštrukcie spaľovacích motorov na ekológiu, J. JablonickýPo 21. 10. 2024 --inde-- - Vplyv konštrukcie spaľovacích motorov na ekológiu, J. Jablonický"
+]
+},
+{
+"den": "Po",
+"od": "9:00",
+"do": "16:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (1)",
+"akcia": "",
+"ucitelia": [
+[
+"102",
+"Z. Palková"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Po 11. 11. 2024 --inde-- - Aplikovaná informatika, Z. Palková"
+]
+},
+{
+"den": "Po",
+"od": "9:00",
+"do": "16:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (6)",
+"akcia": "",
+"ucitelia": [
+[
+"50864",
+"J. Valíček"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Po 27. 1. 2025 --inde-- - Progresívne technológie výroby a spracovania materiálov, J. Valíček"
+]
+},
+{
+"den": "Po",
+"od": "13:00",
+"do": "16:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (3)",
+"akcia": "",
+"ucitelia": [
+[
+"1501",
+"P. Findura"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Po 16. 12. 2024 --inde-- - Technológia a technika rastlinnej výroby, P. Findura - zasadačka"
+]
+},
+{
+"den": "Po",
+"od": "13:00",
+"do": "18:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (5)",
+"akcia": "",
+"ucitelia": [
+[
+"1501",
+"P. Findura"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Po 11. 11. 2024 --inde-- - Technológia a technika rastlinnej výroby, P. Findura - zasadačka"
+]
+},
+{
+"den": "Ut",
+"od": "8:00",
+"do": "9:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (8)",
+"akcia": "",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Ut 14. 1. 2025 --inde-- - Hydraulické systémy v mobilných strojoch, J. Kosiba"
+]
+},
+{
+"den": "Ut",
+"od": "8:00",
+"do": "15:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (9)",
+"akcia": "",
+"ucitelia": [
+[
+"103",
+"M. Kadnár"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Ut 4. 2. 2025 --inde-- - Modelovanie a optimalizácia v strojárskych technológiách, M. Kadnár"
+]
+},
+{
+"den": "Ut",
+"od": "8:00",
+"do": "12:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (12)",
+"akcia": "",
+"ucitelia": [
+[
+"1242",
+"J. Galambošová"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Ut 7. 1. 2025 --inde-- - Technika a technológie v presnom poľnohospodárstve, J. Galambošová"
+]
+},
+{
+"den": "Ut",
+"od": "9:00",
+"do": "15:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (13)",
+"akcia": "",
+"ucitelia": [
+[
+"102",
+"Z. Palková"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Ut 12. 11. 2024 --inde-- - Aplikovaná informatika, Z. Palková"
+]
+},
+{
+"den": "Ut",
+"od": "10:00",
+"do": "14:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (7)",
+"akcia": "",
+"ucitelia": [
+[
+"1580",
+"Z. Tkáč"
+],
+[
+"1580",
+"Z. Tkáč"
+],
+[
+"1228",
+"R. Majdan"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+},
+{
+"den": "Ut",
+"od": "10:00",
+"do": "11:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (8)",
+"akcia": "",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Ut 14. 1. 2025 --inde-- - Hydraulické systémy v mobilných strojoch, J. Kosiba"
+]
+},
+{
+"den": "Ut",
+"od": "10:00",
+"do": "14:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (11)",
+"akcia": "",
+"ucitelia": [
+[
+"1228",
+"R. Majdan"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Ut 5. 11. 2024 --inde-- - Dopravná a manipulačná technika, R. Majdan"
+]
+},
+{
+"den": "Ut",
+"od": "13:00",
+"do": "18:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (10)",
+"akcia": "",
+"ucitelia": [
+[
+"1501",
+"P. Findura"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Ut 29. 10. 2024 --inde-- - Technológia a technika rastlinnej výroby, P. Findura - zasadačka"
+]
+},
+{
+"den": "Ut",
+"od": "13:00",
+"do": "14:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (8)",
+"akcia": "",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Ut 14. 1. 2025 --inde-- - Hydraulické systémy v mobilných strojoch, J. Kosiba"
+]
+},
+{
+"den": "St",
+"od": "8:00",
+"do": "14:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (15)",
+"akcia": "",
+"ucitelia": [
+[
+"103",
+"M. Kadnár"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"St 5. 2. 2025 --inde-- - Modelovanie a optimalizácia v strojárskych technológiách, M. Kadnár"
+]
+},
+{
+"den": "St",
+"od": "8:00",
+"do": "12:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (18)",
+"akcia": "",
+"ucitelia": [
+[
+"1242",
+"J. Galambošová"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"St 8. 1. 2025 --inde-- - Technika a technológie v presnom poľnohospodárstve, J. Galambošová"
+]
+},
+{
+"den": "St",
+"od": "8:00",
+"do": "9:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (14)",
+"akcia": "",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"St 15. 1. 2025 --inde-- - Hydraulické systémy v mobilných strojoch, J. Kosiba"
+]
+},
+{
+"den": "St",
+"od": "9:00",
+"do": "13:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (16)",
+"akcia": "",
+"ucitelia": [
+[
+"1228",
+"R. Majdan"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"St 6. 11. 2024 --inde-- - Dopravná a manipulačná technika, R. Majdan"
+]
+},
+{
+"den": "St",
+"od": "10:00",
+"do": "11:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (14)",
+"akcia": "",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"St 15. 1. 2025 --inde-- - Hydraulické systémy v mobilných strojoch, J. Kosiba"
+]
+},
+{
+"den": "St",
+"od": "13:00",
+"do": "14:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (14)",
+"akcia": "",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"St 15. 1. 2025 --inde-- - Hydraulické systémy v mobilných strojoch, J. Kosiba"
+]
+},
+{
+"den": "St",
+"od": "13:00",
+"do": "17:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (17)",
+"akcia": "",
+"ucitelia": [
+[
+"1580",
+"Z. Tkáč"
+],
+[
+"1580",
+"Z. Tkáč"
+],
+[
+"1228",
+"R. Majdan"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+},
+{
+"den": "Št",
+"od": "8:00",
+"do": "9:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (20)",
+"akcia": "",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Št 16. 1. 2025 --inde-- - Hydraulické systémy v mobilných strojoch, J. Kosiba"
+]
+},
+{
+"den": "Št",
+"od": "10:00",
+"do": "14:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (19)",
+"akcia": "",
+"ucitelia": [
+[
+"1242",
+"J. Galambošová"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Št 9. 1. 2025 --inde-- - Technika a technológie v presnom poľnohospodárstve, J. Galambošová"
+]
+},
+{
+"den": "Pi",
+"od": "8:00",
+"do": "13:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (22)",
+"akcia": "",
+"ucitelia": [
+[
+"1580",
+"Z. Tkáč"
+],
+[
+"1580",
+"Z. Tkáč"
+],
+[
+"1228",
+"R. Majdan"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+},
+{
+"den": "Pi",
+"od": "8:00",
+"do": "10:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (23)",
+"akcia": "",
+"ucitelia": [
+[
+"1269",
+"I. Janoško"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Pi 8. 11. 2024 MF-42 - Teória motorových vozidiel, I. JanoškoPi 15. 11. 2024 MF-42 - Teória motorových vozidiel, I. JanoškoPi 22. 11. 2024 MF-42 - Teória motorových vozidiel, I. JanoškoPi 29. 11. 2024 MF-42 - Teória motorových vozidiel, I. JanoškoPi 6. 12. 2024 MF-42 - Teória motorových vozidiel, I. JanoškoPi 13. 12. 2024 MF-42 - Teória motorových vozidiel, I. Janoško"
+]
+},
+{
+"den": "Pi",
+"od": "8:00",
+"do": "13:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (24)",
+"akcia": "",
+"ucitelia": [
+[
+"1228",
+"R. Majdan"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Pi 8. 11. 2024 --inde-- - Dopravná a manipulačná technika, R. Majdan"
+]
+},
+{
+"den": "Pi",
+"od": "8:00",
+"do": "11:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (27)",
+"akcia": "",
+"ucitelia": [
+[
+"1585",
+"J. Jablonický"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Pi 1. 11. 2024 --inde-- - Vplyv konštrukcie spaľovacích motorov na ekológiu, J. Jablonický"
+]
+},
+{
+"den": "Pi",
+"od": "8:00",
+"do": "13:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (28)",
+"akcia": "",
+"ucitelia": [
+[
+"1242",
+"J. Galambošová"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Pi 10. 1. 2025 --inde-- - Technika a technológie v presnom poľnohospodárstve, J. Galambošová"
+]
+},
+{
+"den": "Pi",
+"od": "9:00",
+"do": "15:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (21)",
+"akcia": "",
+"ucitelia": [
+[
+"50864",
+"J. Valíček"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Pi 31. 1. 2025 --inde-- - Progresívne technológie výroby a spracovania materiálov, J. Valíček"
+]
+},
+{
+"den": "Pi",
+"od": "9:00",
+"do": "14:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (25)",
+"akcia": "",
+"ucitelia": [
+[
+"1471",
+"M. Korenko"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Pi 22. 11. 2024 --inde-- - Integrované manažérske systémy vo výrobných technológiách, M. KorenkoPi 6. 12. 2024 --inde-- - Integrované manažérske systémy vo výrobných technológiách, M. Korenko"
+]
+},
+{
+"den": "Pi",
+"od": "9:00",
+"do": "12:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (26)",
+"akcia": "",
+"ucitelia": [
+[
+"1471",
+"M. Korenko"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Pi 13. 12. 2024 --inde-- - Integrované manažérske systémy vo výrobných technológiách, M. Korenko"
+]
+}
+]
+},
+{
+"id": "3656",
+"nazov": "Rozvrh LS 2024/2025 TF - denná kombinovaná forma",
+"obdobie": "LS 2024/2025",
+"ak_rok": "2024/2025",
+"semester": "LS",
+"forma": "denná kombinovaná",
+"zaciatok": "10.02.2025",
+"koniec": "11.05.2025",
+"akcie": [
+{
+"den": "Pi 14.02.2025",
+"od": "15:30",
+"do": "17:30",
+"predmet_id": "138980",
+"predmet": "Automobilové spaľovacie motory",
+"akcia": "Prednáška",
+"ucitelia": [
+[
+"1585",
+"J. Jablonický"
+]
+],
+"obmedzenie": "2b-adb",
+"kapacita": 999,
+"poznamky": []
+},
+{
+"den": "Pi 28.02.2025",
+"od": "15:30",
+"do": "19:30",
+"predmet_id": "138980",
+"predmet": "Automobilové spaľovacie motory",
+"akcia": "Prednáška",
+"ucitelia": [
+[
+"1585",
+"J. Jablonický"
+]
+],
+"obmedzenie": "2b-adb",
+"kapacita": 999,
+"poznamky": []
+},
+{
+"den": "Pi 14.03.2025",
+"od": "13:30",
+"do": "17:30",
+"predmet_id": "138980",
+"predmet": "Automobilové spaľovacie motory",
+"akcia": "Prednáška",
+"ucitelia": [
+[
+"1585",
+"J. Jablonický"
+]
+],
+"obmedzenie": "2b-adb",
+"kapacita": 999,
+"poznamky": []
+},
+{
+"den": "Pi 28.03.2025",
+"od": "15:30",
+"do": "17:30",
+"predmet_id": "138980",
+"predmet": "Automobilové spaľovacie motory",
+"akcia": "Cvičenie",
+"ucitelia": [
+[
+"1585",
+"J. Jablonický"
+]
+],
+"obmedzenie": "2b-adb",
+"kapacita": 24,
+"poznamky": []
+},
+{
+"den": "Pi 11.04.2025",
+"od": "17:30",
+"do": "19:30",
+"predmet_id": "138980",
+"predmet": "Automobilové spaľovacie motory",
+"akcia": "Cvičenie",
+"ucitelia": [
+[
+"1585",
+"J. Jablonický"
+]
+],
+"obmedzenie": "2b-adb",
+"kapacita": 24,
+"poznamky": []
+},
+{
+"den": "Pi 25.04.2025",
+"od": "13:30",
+"do": "15:30",
+"predmet_id": "138980",
+"predmet": "Automobilové spaľovacie motory",
+"akcia": "Cvičenie",
+"ucitelia": [
+[
+"1585",
+"J. Jablonický"
+]
+],
+"obmedzenie": "2b-adb",
+"kapacita": 24,
+"poznamky": []
+},
+{
+"den": "So 26.04.2025",
+"od": "13:30",
+"do": "17:30",
+"predmet_id": "138980",
+"predmet": "Automobilové spaľovacie motory",
+"akcia": "Cvičenie",
+"ucitelia": [
+[
+"1585",
+"J. Jablonický"
+]
+],
+"obmedzenie": "2b-adb",
+"kapacita": 24,
+"poznamky": []
+}
+]
+},
+{
+"id": "3927",
+"nazov": "Rozvrh LS 2024/2025 PHD TF - externá prezenčná forma",
+"obdobie": "2024/2025 - doktorandské štúdiá",
+"ak_rok": "2024/2025",
+"semester": "PhD",
+"forma": "externá prezenčná",
+"zaciatok": "10.02.2025",
+"koniec": "11.05.2025",
+"akcie": [
+{
+"den": "Ut",
+"od": "8:00",
+"do": "11:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (1)",
+"akcia": "",
+"ucitelia": [
+[
+"1242",
+"J. Galambošová"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Ut 4. 2. 2025 --inde-- - Plánovanie a vyhodnocovanie experimentov, J. Galambošová"
+]
+},
+{
+"den": "St",
+"od": "8:00",
+"do": "11:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (2)",
+"akcia": "",
+"ucitelia": [
+[
+"1242",
+"J. Galambošová"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"St 5. 2. 2025 --inde-- - Plánovanie a vyhodnocovanie experimentov, J. Galambošová"
+]
+},
+{
+"den": "Št",
+"od": "8:00",
+"do": "11:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (3)",
+"akcia": "",
+"ucitelia": [
+[
+"1242",
+"J. Galambošová"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Št 6. 2. 2025 --inde-- - Plánovanie a vyhodnocovanie experimentov, J. Galambošová"
+]
+},
+{
+"den": "Št",
+"od": "9:00",
+"do": "16:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (4)",
+"akcia": "",
+"ucitelia": [
+[
+"102",
+"Z. Palková"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Št 13. 3. 2025 --inde-- - Obnoviteľné energie pre udržateľný rozvoj, Z. Palková"
+]
+},
+{
+"den": "Pi",
+"od": "8:00",
+"do": "12:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (6)",
+"akcia": "",
+"ucitelia": [
+[
+"1242",
+"J. Galambošová"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Pi 7. 2. 2025 --inde-- - Plánovanie a vyhodnocovanie experimentov, J. Galambošová"
+]
+},
+{
+"den": "Pi",
+"od": "9:00",
+"do": "11:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (5)",
+"akcia": "",
+"ucitelia": [
+[
+"1209",
+"M. Olejár"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Pi 14. 2. 2025 --inde-- - Progresívne metódy riadenia technologických procesov, M. OlejárPi 28. 3. 2025 --inde-- - Progresívne metódy riadenia technologických procesov, M. Olejár"
+]
+},
+{
+"den": "Pi",
+"od": "9:00",
+"do": "15:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (7)",
+"akcia": "",
+"ucitelia": [
+[
+"102",
+"Z. Palková"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Pi 14. 3. 2025 --inde-- - Obnoviteľné energie pre udržateľný rozvoj, Z. Palková"
+]
+},
+{
+"den": "Pi",
+"od": "9:00",
+"do": "12:00",
+"predmet_id": "",
+"predmet": "Bloková akcia (8)",
+"akcia": "",
+"ucitelia": [
+[
+"1209",
+"M. Olejár"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Pi 21. 2. 2025 --inde-- - Progresívne metódy riadenia technologických procesov, M. OlejárPi 7. 3. 2025 --inde-- - Progresívne metódy riadenia technologických procesov, M. OlejárPi 14. 3. 2025 --inde-- - Progresívne metódy riadenia technologických procesov, M. Olejár"
+]
+}
+]
+},
+{
+"id": "3655",
+"nazov": "Rozvrh LS 2024/2025 TF - denná prezenčná forma",
+"obdobie": "LS 2024/2025",
+"ak_rok": "2024/2025",
+"semester": "LS",
+"forma": "denná prezenčná",
+"zaciatok": "10.02.2025",
+"koniec": "11.05.2025",
+"akcie": [
+{
+"den": "Po",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (11)",
+"akcia": "",
+"ucitelia": [
+[
+"1461",
+"M. Žitňák"
+],
+[
+"1461",
+"M. Žitňák"
+],
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1448",
+"I. Karandušovská"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+},
+{
+"den": "Po",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (12)",
+"akcia": "",
+"ucitelia": [
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1448",
+"I. Karandušovská"
+],
+[
+"1461",
+"M. Žitňák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+},
+{
+"den": "Po",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (13)",
+"akcia": "",
+"ucitelia": [
+[
+"231",
+"T. Giertl"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Po 7. 4. 2025 --inde-- - Kurz efektívneho využívania obnoviteľných zdrojov energie, T. GiertlPo 14. 4. 2025 --inde-- - Kurz efektívneho využívania obnoviteľných zdrojov energie, T. Giertl"
+]
+},
+{
+"den": "Po",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (14)",
+"akcia": "",
+"ucitelia": [
+[
+"1325",
+"M. Macák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Po 31. 3. 2025 AC-02 - Kurz presného poľnohospodárstva, M. Macák - Utorok - zasadačka KSVBPo 7. 4. 2025 AC-02 - Kurz presného poľnohospodárstva, M. Macák - utorok - zasadačka KSVB"
+]
+},
+{
+"den": "Po",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (15)",
+"akcia": "",
+"ucitelia": [
+[
+"1585",
+"J. Jablonický"
+],
+[
+"1585",
+"J. Jablonický"
+],
+[
+"196",
+"J. Tulík"
+],
+[
+"1168",
+"R. Bernát"
+],
+[
+"1571",
+"R. Drlička"
+],
+[
+"1518",
+"M. Kotus"
+],
+[
+"226",
+"Z. Záležák"
+],
+[
+"1585",
+"J. Jablonický"
+],
+[
+"196",
+"J. Tulík"
+],
+[
+"1168",
+"R. Bernát"
+],
+[
+"1571",
+"R. Drlička"
+],
+[
+"1518",
+"M. Kotus"
+],
+[
+"226",
+"Z. Záležák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+},
+{
+"den": "Ut",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (27)",
+"akcia": "",
+"ucitelia": [
+[
+"1461",
+"M. Žitňák"
+],
+[
+"1461",
+"M. Žitňák"
+],
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1448",
+"I. Karandušovská"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+},
+{
+"den": "Ut",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (28)",
+"akcia": "",
+"ucitelia": [
+[
+"231",
+"T. Giertl"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Ut 8. 4. 2025 --inde-- - Kurz efektívneho využívania obnoviteľných zdrojov energie, T. GiertlUt 15. 4. 2025 --inde-- - Kurz efektívneho využívania obnoviteľných zdrojov energie, T. Giertl"
+]
+},
+{
+"den": "Ut",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (29)",
+"akcia": "",
+"ucitelia": [
+[
+"1325",
+"M. Macák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Ut 1. 4. 2025 --inde-- - Kurz presného poľnohospodárstva, M. Macák - Utorok - zasadačka KSVBUt 8. 4. 2025 --inde-- - Kurz presného poľnohospodárstva, M. Macák - utorok - zasadačka KSVB"
+]
+},
+{
+"den": "Ut",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (30)",
+"akcia": "",
+"ucitelia": [
+[
+"1585",
+"J. Jablonický"
+],
+[
+"1585",
+"J. Jablonický"
+],
+[
+"196",
+"J. Tulík"
+],
+[
+"1168",
+"R. Bernát"
+],
+[
+"1571",
+"R. Drlička"
+],
+[
+"1518",
+"M. Kotus"
+],
+[
+"226",
+"Z. Záležák"
+],
+[
+"1585",
+"J. Jablonický"
+],
+[
+"196",
+"J. Tulík"
+],
+[
+"1168",
+"R. Bernát"
+],
+[
+"1571",
+"R. Drlička"
+],
+[
+"1518",
+"M. Kotus"
+],
+[
+"226",
+"Z. Záležák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+},
+{
+"den": "Ut",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (31)",
+"akcia": "",
+"ucitelia": [
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1448",
+"I. Karandušovská"
+],
+[
+"1461",
+"M. Žitňák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+},
+{
+"den": "Ut",
+"od": "8:00",
+"do": "10:00",
+"predmet_id": "139004",
+"predmet": "Legislatíva v cestnej doprave",
+"akcia": "Cvičenie",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "1i-adi",
+"kapacita": 24,
+"poznamky": []
+},
+{
+"den": "Ut",
+"od": "10:00",
+"do": "12:00",
+"predmet_id": "138980",
+"predmet": "Automobilové spaľovacie motory",
+"akcia": "Prednáška",
+"ucitelia": [
+[
+"1585",
+"J. Jablonický"
+]
+],
+"obmedzenie": "2b-(adb | kbb)",
+"kapacita": 24,
+"poznamky": []
+},
+{
+"den": "St",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (37)",
+"akcia": "",
+"ucitelia": [
+[
+"1585",
+"J. Jablonický"
+],
+[
+"1585",
+"J. Jablonický"
+],
+[
+"196",
+"J. Tulík"
+],
+[
+"1168",
+"R. Bernát"
+],
+[
+"1571",
+"R. Drlička"
+],
+[
+"1518",
+"M. Kotus"
+],
+[
+"226",
+"Z. Záležák"
+],
+[
+"1585",
+"J. Jablonický"
+],
+[
+"196",
+"J. Tulík"
+],
+[
+"1168",
+"R. Bernát"
+],
+[
+"1571",
+"R. Drlička"
+],
+[
+"1518",
+"M. Kotus"
+],
+[
+"226",
+"Z. Záležák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+},
+{
+"den": "St",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (38)",
+"akcia": "",
+"ucitelia": [
+[
+"231",
+"T. Giertl"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"St 9. 4. 2025 --inde-- - Kurz efektívneho využívania obnoviteľných zdrojov energie, T. GiertlSt 16. 4. 2025 --inde-- - Kurz efektívneho využívania obnoviteľných zdrojov energie, T. Giertl"
+]
+},
+{
+"den": "St",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (39)",
+"akcia": "",
+"ucitelia": [
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1448",
+"I. Karandušovská"
+],
+[
+"1461",
+"M. Žitňák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+},
+{
+"den": "St",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (40)",
+"akcia": "",
+"ucitelia": [
+[
+"1461",
+"M. Žitňák"
+],
+[
+"1461",
+"M. Žitňák"
+],
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1448",
+"I. Karandušovská"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+},
+{
+"den": "St",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (41)",
+"akcia": "",
+"ucitelia": [
+[
+"1325",
+"M. Macák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"St 2. 4. 2025 AC-04 - Kurz presného poľnohospodárstva, M. Macák - Utorok - zasadačka KSVBSt 9. 4. 2025 AC-04 - Kurz presného poľnohospodárstva, M. Macák - utorok - zasadačka KSVB"
+]
+},
+{
+"den": "St",
+"od": "8:00",
+"do": "10:00",
+"predmet_id": "138980",
+"predmet": "Automobilové spaľovacie motory",
+"akcia": "Cvičenie",
+"ucitelia": [
+[
+"1585",
+"J. Jablonický"
+],
+[
+"74468",
+"S. Bártová"
+]
+],
+"obmedzenie": "2b-(adb | kbb)",
+"kapacita": 24,
+"poznamky": []
+},
+{
+"den": "Št",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (47)",
+"akcia": "",
+"ucitelia": [
+[
+"1325",
+"M. Macák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Št 3. 4. 2025 AC-04 - Kurz presného poľnohospodárstva, M. Macák - Utorok - zasadačka KSVBŠt 10. 4. 2025 AC-04 - Kurz presného poľnohospodárstva, M. Macák - utorok - zasadačka KSVB"
+]
+},
+{
+"den": "Št",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (48)",
+"akcia": "",
+"ucitelia": [
+[
+"1461",
+"M. Žitňák"
+],
+[
+"1461",
+"M. Žitňák"
+],
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1448",
+"I. Karandušovská"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+},
+{
+"den": "Št",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (49)",
+"akcia": "",
+"ucitelia": [
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1448",
+"I. Karandušovská"
+],
+[
+"1461",
+"M. Žitňák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+},
+{
+"den": "Št",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (50)",
+"akcia": "",
+"ucitelia": [
+[
+"231",
+"T. Giertl"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Št 10. 4. 2025 --inde-- - Kurz efektívneho využívania obnoviteľných zdrojov energie, T. GiertlŠt 17. 4. 2025 --inde-- - Kurz efektívneho využívania obnoviteľných zdrojov energie, T. Giertl"
+]
+},
+{
+"den": "Št",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (51)",
+"akcia": "",
+"ucitelia": [
+[
+"1585",
+"J. Jablonický"
+],
+[
+"1585",
+"J. Jablonický"
+],
+[
+"196",
+"J. Tulík"
+],
+[
+"1168",
+"R. Bernát"
+],
+[
+"1571",
+"R. Drlička"
+],
+[
+"1518",
+"M. Kotus"
+],
+[
+"226",
+"Z. Záležák"
+],
+[
+"1585",
+"J. Jablonický"
+],
+[
+"196",
+"J. Tulík"
+],
+[
+"1168",
+"R. Bernát"
+],
+[
+"1571",
+"R. Drlička"
+],
+[
+"1518",
+"M. Kotus"
+],
+[
+"226",
+"Z. Záležák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+},
+{
+"den": "Št",
+"od": "15:00",
+"do": "17:00",
+"predmet_id": "139004",
+"predmet": "Legislatíva v cestnej doprave",
+"akcia": "Prednáška",
+"ucitelia": [
+[
+"271",
+"J. Kosiba"
+]
+],
+"obmedzenie": "1i-adi",
+"kapacita": 24,
+"poznamky": [
+"Voľný deň: 01. 05. 2025, 08. 05. 2025"
+]
+},
+{
+"den": "Pi",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (52)",
+"akcia": "",
+"ucitelia": [
+[
+"1461",
+"M. Žitňák"
+],
+[
+"1461",
+"M. Žitňák"
+],
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1448",
+"I. Karandušovská"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+},
+{
+"den": "Pi",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (53)",
+"akcia": "",
+"ucitelia": [
+[
+"231",
+"T. Giertl"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Pi 11. 4. 2025 --inde-- - Kurz efektívneho využívania obnoviteľných zdrojov energie, T. GiertlPi 18. 4. 2025 --inde-- - Kurz efektívneho využívania obnoviteľných zdrojov energie, T. Giertl"
+]
+},
+{
+"den": "Pi",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (54)",
+"akcia": "",
+"ucitelia": [
+[
+"1325",
+"M. Macák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Pi 4. 4. 2025 AC-02 - Kurz presného poľnohospodárstva, M. Macák - Utorok - zasadačka KSVB"
+]
+},
+{
+"den": "Pi",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (55)",
+"akcia": "",
+"ucitelia": [
+[
+"1325",
+"M. Macák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": [
+"Pi 11. 4. 2025 --inde-- - Kurz presného poľnohospodárstva, M. Macák - utorok - zasadačka KSVB"
+]
+},
+{
+"den": "Pi",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (56)",
+"akcia": "",
+"ucitelia": [
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1578",
+"J. Lendelová"
+],
+[
+"1448",
+"I. Karandušovská"
+],
+[
+"1461",
+"M. Žitňák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+},
+{
+"den": "Pi",
+"od": "7:30",
+"do": "15:30",
+"predmet_id": "",
+"predmet": "Bloková akcia (57)",
+"akcia": "",
+"ucitelia": [
+[
+"1585",
+"J. Jablonický"
+],
+[
+"1585",
+"J. Jablonický"
+],
+[
+"196",
+"J. Tulík"
+],
+[
+"1168",
+"R. Bernát"
+],
+[
+"1571",
+"R. Drlička"
+],
+[
+"1518",
+"M. Kotus"
+],
+[
+"226",
+"Z. Záležák"
+],
+[
+"1585",
+"J. Jablonický"
+],
+[
+"196",
+"J. Tulík"
+],
+[
+"1168",
+"R. Bernát"
+],
+[
+"1571",
+"R. Drlička"
+],
+[
+"1518",
+"M. Kotus"
+],
+[
+"226",
+"Z. Záležák"
+]
+],
+"obmedzenie": "",
+"kapacita": 0,
+"poznamky": []
+}
+]
+}
+],
+"predmety": {
+"136314": {
+"kod": "T15-0009-B",
+"nazov": "Automobilové spaľovacie motory",
+"studentov": 34,
+"obdobie": "LS 2023/2024 - TF",
+"ak_rok": "2023/2024",
+"semester": "LS"
+},
+"136338": {
+"kod": "T15-0018-I",
+"nazov": "Legislatíva v cestnej doprave",
+"studentov": 20,
+"obdobie": "LS 2023/2024 - TF",
+"ak_rok": "2023/2024",
+"semester": "LS"
+},
+"136502": {
+"kod": "T15-0171-I",
+"nazov": "Hydraulické systémy",
+"studentov": 7,
+"obdobie": "ZS 2023/2024 - TF",
+"ak_rok": "2023/2024",
+"semester": "ZS"
+},
+"136518": {
+"kod": "T15-0164-I",
+"nazov": "Mechanizmy cestných vozidiel",
+"studentov": 19,
+"obdobie": "ZS 2023/2024 - TF",
+"ak_rok": "2023/2024",
+"semester": "ZS"
+},
+"136522": {
+"kod": "T15-0023-B",
+"nazov": "Motory na alternatívne palivá",
+"studentov": 42,
+"obdobie": "ZS 2023/2024 - TF",
+"ak_rok": "2023/2024",
+"semester": "ZS"
+},
+"136562": {
+"kod": "T15-0008-B",
+"nazov": "Úvod do štúdia",
+"studentov": 190,
+"obdobie": "ZS 2023/2024 - TF",
+"ak_rok": "2023/2024",
+"semester": "ZS"
+},
+"138910": {
+"kod": "T15-0171-I",
+"nazov": "Hydraulické systémy",
+"studentov": 31,
+"obdobie": "ZS 2024/2025 - TF",
+"ak_rok": "2024/2025",
+"semester": "ZS"
+},
+"138926": {
+"kod": "T15-0164-I",
+"nazov": "Mechanizmy cestných vozidiel",
+"studentov": 11,
+"obdobie": "ZS 2024/2025 - TF",
+"ak_rok": "2024/2025",
+"semester": "ZS"
+},
+"138930": {
+"kod": "T15-0023-B",
+"nazov": "Motory na alternatívne palivá",
+"studentov": 75,
+"obdobie": "ZS 2024/2025 - TF",
+"ak_rok": "2024/2025",
+"semester": "ZS"
+},
+"138970": {
+"kod": "T15-0008-B",
+"nazov": "Úvod do štúdia",
+"studentov": 207,
+"obdobie": "ZS 2024/2025 - TF",
+"ak_rok": "2024/2025",
+"semester": "ZS"
+},
+"138980": {
+"kod": "T15-0009-B",
+"nazov": "Automobilové spaľovacie motory",
+"studentov": 28,
+"obdobie": "LS 2024/2025 - TF",
+"ak_rok": "2024/2025",
+"semester": "LS"
+},
+"139004": {
+"kod": "T15-0018-I",
+"nazov": "Legislatíva v cestnej doprave",
+"studentov": 11,
+"obdobie": "LS 2024/2025 - TF",
+"ak_rok": "2024/2025",
+"semester": "LS"
+}
+}
+}

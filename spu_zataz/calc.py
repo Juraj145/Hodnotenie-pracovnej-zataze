@@ -351,8 +351,8 @@ def vypocitaj_ustavy(data: Data, obd: Obdobie, params: dict,
         if v.ak_rok in ak_set and v.ucitel_id in ucitel_ustav and ucitel_ustav[v.ucitel_id][1]:
             if v.odbor and v.odbor not in params["koef_odbor"]:
                 nezname_odbory.add(v.odbor)
-            get(ucitel_ustav[v.ucitel_id]).vykon_vzdelavanie += (
-                v.hodiny * v.pocet_studentov * koeficient_odboru(v.odbor, params) / n_ak)
+            sh = v.studentohodiny if v.studentohodiny and v.studentohodiny > 0 else v.hodiny * v.pocet_studentov
+            get(ucitel_ustav[v.ucitel_id]).vykon_vzdelavanie += sh * koeficient_odboru(v.odbor, params) / n_ak
     if nezname_odbory:
         upozornenia.append("Odbory bez koeficientu v tab. 2 (použitý najbližší alebo 1,0): " + ", ".join(sorted(nezname_odbory)))
 
