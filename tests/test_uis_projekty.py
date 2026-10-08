@@ -124,3 +124,48 @@ class TestUlozenieAVypocet(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestSpoluriesitelia(unittest.TestCase):
+    """Skutočná štruktúra stránky „Pracovníci“ projektu 27129 (KEGA, UPTDB) vrátane historických pracovníkov."""
+
+    def setUp(self):
+        html = subor("uis_projekt_pracovnici_27129.html")
+        self.p = uis_web.ProjektUIS("27129", "Integrácia pokročilých technológií", "Riešený", 2025, 2027,
+                                    "KEGA (Kultúrna a edukačná grantová agentúra MŠVVaŠ SR)", "196", "J. Tulík",
+                                    kod="012SPU-4/2025")
+        uis_web.parsuj_detail_projektu(html, html, self.p)
+        self.p.nacitany_detail = True
+
+    def test_parsovanie(self):
+        self.assertEqual(len(self.p.riesitelia), 13)
+        self.assertEqual(self.p.historicki, [("71515", "Ing. Rastislav Kollárik, PhD.", ["Riešiteľ"], 2024, 2026)])
+        roky = {r: {m for _, m, _ in uis_web.riesitelia_v_roku(self.p, r)} for r in (2025, 2027)}
+        # garant (administratíva) + metodický riešiteľ + 11 riešiteľov; historický riešiteľ iba do 2026
+        self.assertEqual(len(roky[2025]), 14)
+        self.assertIn("Ing. Rastislav Kollárik, PhD.", roky[2025])
+        self.assertNotIn("Ing. Rastislav Kollárik, PhD.", roky[2027])
+        self.assertIn("prof. Ing. Juraj Jablonický, PhD.", roky[2027])
+
+    def test_ulozenie_spoluriesitelov(self):
+        db = Databaza(Path(tempfile.mkdtemp()) / "s.db")
+        for oc, meno in (("196", "Tulík Juraj"), ("1585", "Jablonický Juraj"), ("1586", "Abrahám Rudolf"),
+                         ("1269", "Janoško Ivan"), ("1580", "Tkáč Zdenko")):
+            db.uloz(Ucitel(osobne_cislo=oc, meno=meno, fakulta="TF", ustav="UPTDB"))
+        db.uloz(Ucitel(meno="Kosiba Ján", fakulta="TF", ustav="UPTDB"))      # bez ID – podľa mena
+        res = uis_web.uloz_projekty(db, [self.p], {}, [2025])
+        self.assertEqual(res.riesitelov_uis, 14)
+        self.assertEqual(res.riesitelov_v_db, 6)
+        self.assertEqual(res.bez_pracovnikov, [])
+        ucasti = {(uc.ucitel_id, uc.zodpovedny) for uc in db.nacitaj("ucasti")}
+        self.assertEqual(len(ucasti), 6)
+        self.assertIn((1, True), ucasti)                  # garant = zodpovedný riešiteľ
+        self.assertEqual(sum(1 for _, z in ucasti if z), 1)
+
+    def test_upozornenie_bez_pracovnikov(self):
+        db = Databaza(Path(tempfile.mkdtemp()) / "b.db")
+        db.uloz(Ucitel(osobne_cislo="196", meno="Tulík Juraj"))
+        self.p.riesitelia, self.p.historicki = [], []
+        res = uis_web.uloz_projekty(db, [self.p], {}, [2025])
+        self.assertEqual(res.bez_pracovnikov, ["012SPU-4/2025"])
+        self.assertIn("nepodarilo načítať zoznam pracovníkov", res.sprava())

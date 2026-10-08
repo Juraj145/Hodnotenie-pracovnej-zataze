@@ -427,6 +427,8 @@ class ProjektUIS:
     garant_meno: str
     kod: str = ""
     riesitelia: list = field(default_factory=list)    # (uis_id, meno, úlohy)
+    historicki: list = field(default_factory=list)    # (uis_id, meno, úlohy, rok od, rok do) – odišli z projektu
+    nacitany_detail: bool = False
 
     @property
     def zapocitany_stav(self) -> bool:
@@ -556,26 +558,47 @@ def parsuj_detail_projektu(html_info: str, html_pracovnici: str, p: ProjektUIS) 
     gar = re.search(r"Garant:\s*<a[^>]*clovek\.pl\?id=(\d+)[^>]*>([\s\S]*?)</a>", html_info)
     if gar:
         p.garant_id, p.garant_meno = gar.group(1), _text(gar.group(2))
-    p.riesitelia = []
-    for m in re.finditer(r"<th[^>]*>\s*Pracovník", html_pracovnici):
-        koniec = html_pracovnici.find("</table>", m.end())
-        tab = html_pracovnici[m.start(): koniec if koniec > 0 else len(html_pracovnici)]
-        for riadok in _RIADOK.finditer(tab):
-            b = _BUNKA.findall(riadok.group(1))
-            if len(b) < 2:
-                continue
-            osoba = re.search(r'clovek\.pl\?id=(\d+)[^>]*>([\s\S]*?)</a>', b[0])
-            if not osoba:
-                continue
-            ulohy = [u for u in re.findall(r'aria-label="([^"]+)"', b[1]) if u]
-            p.riesitelia.append((osoba.group(1), _text(osoba.group(2)), ulohy))
-        break
+    p.riesitelia, p.historicki = [], []
+    # Riadky pracovníkov sa hľadajú podľa obsahu (odkaz na osobu + ikona úlohy), nie podľa nadpisov,
+    # aby nezáležalo na jazyku ani na rozložení stránky. Historickí pracovníci majú v riadku dátumy od – do.
+    for riadok in _RIADOK.finditer(html_pracovnici):
+        b = _BUNKA.findall(riadok.group(1))
+        if len(b) < 2:
+            continue
+        osoba = re.search(r'clovek\.pl\?id=(\d+)[^>]*>([\s\S]*?)</a>', b[0])
+        if not osoba or "role-" not in b[1] and "aria-label" not in b[1]:
+            continue
+        ulohy = _ulohy(b[1])
+        datumy = [int(d) for c in b[2:] for d in re.findall(r"\b\d{1,2}\.\s?\d{1,2}\.\s?(\d{4})\b", _text(c))]
+        zaznam = (osoba.group(1), _text(osoba.group(2)), ulohy)
+        if len(datumy) >= 1 and len(b) >= 4:
+            p.historicki.append((*zaznam, datumy[0], datumy[1] if len(datumy) > 1 else 9999))
+        else:
+            p.riesitelia.append(zaznam)
     return p
 
 
+_ROLY_SYSID = {"role-resitel": "Riešiteľ", "role-metodicky-resitel": "Metodický riešiteľ",
+               "role-administrativa": "Administratíva", "role-pomocnik": "Pomocník", "role-pozorovatel": "Pozorovateľ"}
+
+
+def _ulohy(bunka: str) -> list[str]:
+    out = []
+    for sysid in re.findall(r'data-sysid="(role-[^"]+)"', bunka):
+        if sysid in _ROLY_SYSID:
+            out.append(_ROLY_SYSID[sysid])
+    for lab in re.findall(r'aria-label="([^"]+)"', bunka):
+        lab = " ".join(htmllib.unescape(lab).split())
+        if lab and lab not in out:
+            out.append(lab)
+    return out
+
+
 def detail_projektu(p: ProjektUIS) -> ProjektUIS:
-    zaklad = f"/vv/projekty.pl?zalozka=5;projekt={p.uis_id};podrobnosti=1;lang=sk"
-    return parsuj_detail_projektu(stiahni(zaklad + ";zobrazit=1"), stiahni(zaklad + ";zobrazit=2"), p)
+    zaklad = f"/vv/projekty.pl?zalozka=5;projekt={p.uis_id};podrobnosti=1"
+    parsuj_detail_projektu(stiahni(zaklad + ";zobrazit=1;lang=sk"), stiahni(zaklad + ";zobrazit=2;lang=sk"), p)
+    p.nacitany_detail = True
+    return p
 
 
 @dataclass
@@ -583,17 +606,45 @@ class VysledokProjektov:
     projekty_roky: int = 0          # počet uložených dvojíc projekt × rok
     ucasti_nove: int = 0
     ucitelia: set = field(default_factory=set)
+    riesitelov_uis: int = 0         # riešitelia (vrátane garantov) vo všetkých uložených projektoch
+    riesitelov_v_db: int = 0        # z toho spárovaní s učiteľmi v databáze
+    bez_pracovnikov: list = field(default_factory=list)   # projekty, pri ktorých UIS nevrátil zoznam pracovníkov
+    mimo_db: dict = field(default_factory=dict)           # riešiteľ mimo databázy -> počet projektov
 
     def sprava(self) -> str:
-        return (f"Uložené: {self.projekty_roky} záznamov projekt × kalendárny rok, {self.ucasti_nove} nových účastí "
-                f"pre {len(self.ucitelia)} učiteľov.\n\nVerejná časť UIS neuvádza vykázané hodiny ani financie. "
-                "Doplňte na karte Projekty sumu pripísanú SPU v jednotlivých rokoch (Sofia/SAP) a hodiny riešiteľov "
-                "(import „Účasť na projektoch“ z UIS). Kým hodiny chýbajú, suma sa rozdelí rovným dielom medzi "
-                "riešiteľov a výsledok je označený ako odhad.")
+        t = (f"Uložené: {self.projekty_roky} záznamov projekt × kalendárny rok, {self.ucasti_nove} nových účastí "
+             f"pre {len(self.ucitelia)} učiteľov.\n"
+             f"Riešitelia v UIS: {self.riesitelov_uis}, z toho spárovaní s učiteľmi v databáze: {self.riesitelov_v_db}.")
+        if self.bez_pracovnikov:
+            t += ("\n\n⚠ Pri týchto projektoch sa nepodarilo načítať zoznam pracovníkov (priradený je iba garant): "
+                  + ", ".join(self.bez_pracovnikov[:10]) + (" …" if len(self.bez_pracovnikov) > 10 else ""))
+        if self.mimo_db:
+            naj = sorted(self.mimo_db.items(), key=lambda x: -x[1])[:8]
+            t += ("\n\nRiešitelia, ktorí nie sú v databáze učiteľov (napr. z iných ústavov alebo doktorandi): "
+                  + ", ".join(m for m, _ in naj) + (" …" if len(self.mimo_db) > 8 else ""))
+        t += ("\n\nVerejná časť UIS neuvádza vykázané hodiny ani financie. Doplňte na karte Projekty sumu pripísanú "
+              "SPU v jednotlivých rokoch (Sofia/SAP) a hodiny riešiteľov (import „Účasť na projektoch“ z UIS). "
+              "Kým hodiny chýbajú, suma sa rozdelí rovným dielom medzi riešiteľov a výsledok je označený ako odhad.")
+        return t
 
 
 def je_riesitel(p: ProjektUIS, osoba_id: str, ulohy: list[str]) -> bool:
     return osoba_id == p.garant_id or any(u.lower() in ULOHY_RIESITELA for u in ulohy)
+
+
+def riesitelia_v_roku(p: ProjektUIS, rok: int) -> list[tuple[str, str, bool]]:
+    """Riešitelia projektu v danom roku: (uis_id, meno, zodpovedný).
+    Aktuálni riešitelia sa berú za celé trvanie projektu, historickí iba v rokoch, keď na projekte boli."""
+    out: dict[str, tuple[str, str, bool]] = {}
+    for oid, meno, ul in p.riesitelia:
+        if je_riesitel(p, oid, ul):
+            out[oid] = (oid, meno, oid == p.garant_id)
+    for oid, meno, ul, od, do in p.historicki:
+        if od <= rok <= do and je_riesitel(p, oid, ul) and oid not in out:
+            out[oid] = (oid, meno, oid == p.garant_id)
+    if p.garant_id and p.garant_id not in out:
+        out[p.garant_id] = (p.garant_id, p.garant_meno, True)
+    return list(out.values())
 
 
 def uloz_projekty(db, projekty: list[ProjektUIS], kategorie: dict[str, str], roky: list[int]) -> VysledokProjektov:
@@ -601,6 +652,7 @@ def uloz_projekty(db, projekty: list[ProjektUIS], kategorie: dict[str, str], rok
 
     * zodpovedný riešiteľ = garant projektu v UIS,
     * riešiteľ = úloha „Riešiteľ“ alebo „Metodický riešiteľ“ (administratíva, pomocník, pozorovateľ sa nezapočítajú),
+    * historickí riešitelia sa započítajú v rokoch, keď na projekte pracovali,
     * existujúce sumy, kapacity a hodiny sa nemenia – doplnia sa iba chýbajúce záznamy.
     """
     from .config import NEZAPOCITAT
@@ -613,18 +665,25 @@ def uloz_projekty(db, projekty: list[ProjektUIS], kategorie: dict[str, str], rok
         typ = kategorie.get(p.druh, kategoria_projektu(p.druh))
         if je_interny_grant(p.kod) or typ == NEZAPOCITAT or not p.zapocitany_stav:
             continue
-        clenovia = [(oid, meno, ul) for oid, meno, ul in p.riesitelia if je_riesitel(p, oid, ul)]
-        if p.garant_id and all(oid != p.garant_id for oid, _, _ in clenovia):
-            clenovia.append((p.garant_id, p.garant_meno, []))
-        nasi = []
-        for oid, meno, _ in clenovia:
-            u = podla_id.get(oid) or podla_mena.get(kluc_mena(meno))
-            if u is not None:
-                nasi.append((u, oid == p.garant_id))
-        if not nasi:
-            continue
+        if p.nacitany_detail and not p.riesitelia and not p.historicki:
+            res.bez_pracovnikov.append(p.kod or p.nazov[:40])
         kod = p.kod or f"UIS-{p.uis_id}"
+        zapocitany = False
         for rok in p.roky(roky):
+            clenovia = riesitelia_v_roku(p, rok)
+            nasi = []
+            for oid, meno, zodp in clenovia:
+                u = podla_id.get(oid) or podla_mena.get(kluc_mena(meno))
+                if u is not None:
+                    nasi.append((u, zodp))
+                elif not zapocitany:
+                    res.mimo_db[meno] = res.mimo_db.get(meno, 0) + 1
+            if not zapocitany:
+                res.riesitelov_uis += len(clenovia)
+                res.riesitelov_v_db += len(nasi)
+                zapocitany = True
+            if not nasi:
+                continue
             proj = db.najdi_projekt(kod, rok)
             if proj is None:
                 proj = Projekt(kod=kod, rok=rok)

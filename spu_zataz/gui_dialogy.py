@@ -843,7 +843,8 @@ class UISProjektyDialog(tk.Toplevel):
             "Podľa čl. 5 sa berú 3 posledné verifikované kalendárne roky a externé projekty podľa pozn. 8 (výskumné, "
             "štrukturálne fondy, Erasmus+ KA2, APVV, VEGA, KEGA, verejná správa, iné subjekty). Započítajú sa projekty "
             "v stave riešený alebo ukončený. Zodpovedný riešiteľ = garant v UIS; riešitelia = úloha Riešiteľ alebo "
-            "Metodický riešiteľ. Kategóriu druhu zmeníte dvojklikom.")).grid(row=1, column=0, columnspan=5, sticky="w", pady=(6, 0))
+            "Metodický riešiteľ (historickí riešitelia v rokoch, keď na projekte boli). Kategóriu druhu zmeníte "
+            "dvojklikom, tím projektu zobrazíte dvojklikom na projekt.")).grid(row=1, column=0, columnspan=5, sticky="w", pady=(6, 0))
 
         pw = ttk.PanedWindow(self, orient="vertical")
         pw.pack(fill="both", expand=True, padx=10, pady=6)
@@ -855,8 +856,9 @@ class UISProjektyDialog(tk.Toplevel):
         self.t_druhy.tree.tag_configure("vyl", foreground="#999")
         pw.add(f1, weight=2)
         f2 = ttk.LabelFrame(pw, text=" Projekty ", padding=4)
-        self.t_proj = Tabulka(f2, [("kod", "Kód", 120), ("na", "Názov", 380), ("od", "Od", 50), ("do", "Do", 50),
-                                   ("stav", "Stav", 80), ("kat", "Kategória", 220), ("gar", "Garant", 140)], height=9)
+        self.t_proj = Tabulka(f2, [("kod", "Kód", 110), ("na", "Názov", 330), ("od", "Od", 45), ("do", "Do", 45),
+                                   ("stav", "Stav", 75), ("kat", "Kategória", 200), ("gar", "Garant", 130),
+                                   ("ries", "Riešitelia v DB / UIS", 120)], height=9, on_double=self.ukaz_riesitelov)
         self.t_proj.pack(fill="both", expand=True)
         self.t_proj.tree.tag_configure("vyl", foreground="#999")
         pw.add(f2, weight=3)
@@ -961,9 +963,52 @@ class UISProjektyDialog(tk.Toplevel):
             riadky.append((i, [druh, n, kat, "áno" if kat in vys else ""], ("vyl",) if kat == config.NEZAPOCITAT else ()))
         self._druhy_poradie = [r[1][0] for r in riadky]
         self.t_druhy.nastav(riadky)
-        self.t_proj.nastav([(i, [p.kod, p.nazov, p.od, p.do, p.stav, self._kat(p), p.garant_meno],
+        self.t_proj.nastav([(i, [p.kod, p.nazov, p.od, p.do, p.stav, self._kat(p), p.garant_meno, self._pocet(p)],
                              ("vyl",) if self._kat(p) == config.NEZAPOCITAT else ())
                             for i, p in enumerate(self.projekty)])
+
+    def _parovanie(self):
+        ucitelia = self.db.nacitaj("ucitelia")
+        return ({u.osobne_cislo: u for u in ucitelia if u.osobne_cislo},
+                {self.uis.kluc_mena(u.meno): u for u in ucitelia})
+
+    def _pocet(self, p) -> str:
+        if not p.nacitany_detail:
+            return "–"
+        podla_id, podla_mena = self._parovanie()
+        clenovia = {oid: m for r in self.uis.ProjektUIS.roky(p, self._roky()) or [p.od]
+                    for oid, m, _ in self.uis.riesitelia_v_roku(p, r)}
+        v_db = sum(1 for oid, m in clenovia.items() if podla_id.get(oid) or podla_mena.get(self.uis.kluc_mena(m)))
+        return f"{v_db} / {len(clenovia)}"
+
+    def ukaz_riesitelov(self):
+        sel = self.t_proj.vybrane()
+        if not sel:
+            return
+        p = self.projekty[int(sel[0])]
+        if not p.nacitany_detail:
+            self.lbl.config(text="Načítavam pracovníkov projektu…")
+
+            def hotovo(_):
+                self.zobraz()
+                self.t_proj.tree.selection_set(sel)
+                self.lbl.config(text="")
+                self.ukaz_riesitelov()
+            self._spusti(self.uis.detail_projektu, hotovo, p)
+            return
+        podla_id, podla_mena = self._parovanie()
+        riadky = []
+        for oid, meno, ul in p.riesitelia:
+            zap = self.uis.je_riesitel(p, oid, ul)
+            v_db = bool(podla_id.get(oid) or podla_mena.get(self.uis.kluc_mena(meno)))
+            riadky.append(f"{'★' if oid == p.garant_id else '  '} {meno} – {', '.join(ul) or '?'}"
+                          f"{'' if zap else '  (nezapočíta sa)'}{'' if v_db or not zap else '  [nie je v databáze]'}")
+        for oid, meno, ul, od, do in p.historicki:
+            riadky.append(f"   {meno} – {', '.join(ul)} {od}–{do if do < 9999 else ''} (historický)")
+        if not riadky:
+            riadky = ["UIS nevrátil zoznam pracovníkov tohto projektu."]
+        messagebox.showinfo(f"Pracovníci projektu {p.kod}", f"{p.nazov}\nGarant (★ zodpovedný riešiteľ): {p.garant_meno}"
+                            "\n\n" + "\n".join(riadky), parent=self)
 
     def zmen_kategoriu(self):
         sel = self.t_druhy.vybrane()
@@ -996,6 +1041,7 @@ class UISProjektyDialog(tk.Toplevel):
 
         def hotovo(nacitane):
             res = self.uis.uloz_projekty(self.db, nacitane, kategorie, roky)
+            self.zobraz()
             self.pb["value"] = 0
             self.btn_uloz.config(state="normal")
             self.lbl.config(text=f"Hotovo – {res.projekty_roky} záznamov projekt × rok.")

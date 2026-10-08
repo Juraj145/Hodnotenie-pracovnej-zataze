@@ -143,9 +143,9 @@ class App:
             ("publikacie", "Publikácie", [("uc", "Učiteľ", 200), ("rok", "Rok", 60), ("kat", "Kategória", 260),
                                           ("kv", "Kvartil", 60), ("pod", "Podiel", 60), ("body", "Body", 70),
                                           ("na", "Názov", 260), ("zd", "Zdroj", 70)]),
-            ("projekty", "Projekty", [("kod", "Kód", 120), ("rok", "Rok", 60), ("typ", "Typ", 160),
-                                      ("na", "Názov", 280), ("suma", "Suma SPU (€)", 110), ("kap", "Kapacita (h)", 90),
-                                      ("uc", "Účastníci", 70)]),
+            ("projekty", "Projekty", [("kod", "Kód", 120), ("rok", "Rok", 60), ("typ", "Typ", 150),
+                                      ("na", "Názov", 240), ("suma", "Suma SPU (€)", 100), ("kap", "Kapacita (h)", 80),
+                                      ("uc", "Riešitelia v DB / UIS", 120), ("ries", "Riešitelia (★ zodpovedný)", 360)]),
             ("ucasti", "Účasť na projektoch", [("pr", "Projekt", 160), ("rok", "Rok", 60), ("uc", "Učiteľ", 240),
                                                ("h", "Hodiny", 80), ("zod", "Zodpovedný riešiteľ", 120)]),
         ):
@@ -207,12 +207,17 @@ class App:
                 riadky.append((p.id, [meno(p.ucitel_id), p.rok, p.kategoria, p.kvartil, fmt(p.podiel, 2), fmt(body),
                                       p.nazov, p.zdroj], ()))
         elif kluc == "projekty":
-            pocty = {}
+            mena: dict[int, list[str]] = {}
             for uc in self.data.ucasti:
-                pocty[uc.projekt_id] = pocty.get(uc.projekt_id, 0) + 1
+                u = ucitelia.get(uc.ucitel_id)
+                if u:
+                    mena.setdefault(uc.projekt_id, []).append(("★ " if uc.zodpovedny else "") + u.meno)
             for p in self.data.projekty:
+                m = sorted(mena.get(p.id, []), key=lambda x: (not x.startswith("★"), x))
+                pocet = f"{len(m)} / {p.pocet_riesitelov}" if p.pocet_riesitelov else str(len(m))
                 riadky.append((p.id, [p.kod, p.rok, p.typ, p.nazov, fmt(p.suma, 2),
-                                      fmt(p.kapacita_hodin, 0) if p.kapacita_hodin else "súčet", pocty.get(p.id, 0)], ()))
+                                      fmt(p.kapacita_hodin, 0) if p.kapacita_hodin else "súčet", pocet,
+                                      ", ".join(m)], ()))
         elif kluc == "ucasti":
             for uc in self.data.ucasti:
                 p = projekty.get(uc.projekt_id)
