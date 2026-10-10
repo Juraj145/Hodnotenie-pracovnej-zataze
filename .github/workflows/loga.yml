@@ -1,0 +1,29 @@
+# Jednorazové stiahnutie log SPU a fakúlt z grafického manuálu (www.uniag.sk/sk/graficky-manual-a-loga-spu-v-nitre)
+name: Logá SPU
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  loga:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Stiahnutie
+        run: |
+          B=https://cdn.uniag.sk/contao/files/download/dokumenty/verejnost/loga2023
+          mkdir -p assets/loga/povodne
+          for p in "SPU 01spu/01_spu_rgb.png" "FAPZ 02fapz/02_spu-fapz_rgb.png" "FEM 03fem/03_spu-fem_rgb.png" \
+                   "TF 04tf/04_spu-tf_rgb.png" "FZKI 05fzki/05_spu-fzki_rgb.png" "FBP 06fbp/06_spu-fbp_rgb.png" \
+                   "FESRR 07fesrr/07_spu-fesrr_rgb.png"; do
+            set -- $p
+            curl -fsSL -A "Mozilla/5.0" -o "assets/loga/povodne/$1.png" "$B/$2"
+          done
+          ls -la assets/loga/povodne
+      - name: Uloženie do repozitára
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add assets/loga
+          git commit -m "Logá SPU a fakúlt z grafického manuálu SPU" || echo "bez zmien"
+          git push
