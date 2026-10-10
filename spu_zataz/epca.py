@@ -48,8 +48,8 @@ class EpcaChyba(Exception):
 
 # ------------------------------------------------------------------ webová služba
 
-def hladaj(query: str, od: int = 1, do: int = 100) -> dict:
-    data = urllib.parse.urlencode({"method": "search", "querytype": "PQF", "from": od, "to": do, "db": DB,
+def hladaj(query: str, od: int = 1, do: int = 100, db: str = DB) -> dict:
+    data = urllib.parse.urlencode({"method": "search", "querytype": "PQF", "from": od, "to": do, "db": db,
                                    "fmt": "LINEMARC", "pfmt": "json", "ictx": "spu", "language": "1",
                                    "query": query}).encode("utf-8")
     req = urllib.request.Request(WS_URL, data=data, headers={

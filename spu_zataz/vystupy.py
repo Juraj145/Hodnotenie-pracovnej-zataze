@@ -33,17 +33,39 @@ STLPCE_UCITELIA = [
     ("Referencia h/týždeň", lambda r: r.referencna_vyucba_tyzden, 11),
     ("Publikácie – body/rok", lambda r: r.body_publikacie, 12),
     ("Projekty – podiel na financiách €/rok", lambda r: r.financie_projekty, 14),
-    ("Štand. vzdelávanie", lambda r: r.std_vzdelavanie, 11),
-    ("Štand. publikácie", lambda r: r.std_publikacie, 11),
-    ("Štand. projekty", lambda r: r.std_projekty, 11),
+    ("Skóre vzdelávanie", lambda r: r.skore.get("vzdelavanie"), 11),
+    ("Skóre publikácie", lambda r: r.skore.get("publikacie"), 11),
+    ("Skóre projekty", lambda r: r.skore.get("projekty"), 11),
+    ("Celkové skóre", lambda r: r.celkove_skore, 11),
+    ("Poradie", lambda r: r.poradie, 8),
     ("Upozornenia", lambda r: "; ".join(r.upozornenia), 50),
+]
+
+# rovnaké usporiadanie ako hárok s výsledkami ústavu UPTDB
+STLPCE_SKORE = [
+    ("Poradie", lambda r: r.poradie, 8),
+    ("Meno a priezvisko", lambda r: r.ucitel.cele_meno, 30),
+    ("Fakulta", lambda r: r.ucitel.fakulta, 10),
+    ("Ústav", lambda r: r.ucitel.ustav, 22),
+    ("Skóre vzdelávanie", lambda r: r.skore.get("vzdelavanie"), 11),
+    ("Skóre publikácie", lambda r: r.skore.get("publikacie"), 11),
+    ("Skóre projekty", lambda r: r.skore.get("projekty"), 11),
+    ("Celkové skóre", lambda r: r.celkove_skore, 11),
+    ("Vzdelávanie (pôvodné)", lambda r: r.povodne.get("vzdelavanie"), 12),
+    ("Publikácie (pôvodné)", lambda r: r.povodne.get("publikacie"), 12),
+    ("Projekty (pôvodné)", lambda r: r.povodne.get("projekty"), 12),
+    ("Vzdelávanie (prepočítané)", lambda r: r.prepocitane.get("vzdelavanie"), 12),
+    ("Publikácie (prepočítané)", lambda r: r.prepocitane.get("publikacie"), 12),
+    ("Projekty (prepočítané)", lambda r: r.prepocitane.get("projekty"), 12),
 ]
 
 STLPCE_USTAVY = [
     ("Fakulta", lambda u: u.fakulta, 10),
     ("Ústav", lambda u: u.ustav, 28),
     ("Počet učiteľov", lambda u: u.pocet_ucitelov, 9),
-    ("Prepočítané úväzky", lambda u: u.uvazky, 11),
+    ("Prepočítané úväzky – vzdelávanie", lambda u: u.uvazky_oblasti.get("vzdelavanie"), 11),
+    ("Prepočítané úväzky – publikácie", lambda u: u.uvazky_oblasti.get("publikacie"), 11),
+    ("Prepočítané úväzky – projekty", lambda u: u.uvazky_oblasti.get("projekty"), 11),
     ("Výkon vzdelávanie (študentohodiny × koef.)", lambda u: u.vykon_vzdelavanie, 16),
     ("Výkon publikácie (body)", lambda u: u.vykon_publikacie, 13),
     ("Výkon projekty (€)", lambda u: u.vykon_projekty, 13),
@@ -89,10 +111,14 @@ def _list(ws, stlpce, riadky, pct_cols=()):
 
 
 def export_vysledkov(path: str | Path, ucitelia: list[VysledokUcitela], ustavy: VysledokUstavov,
-                     obd: Obdobie, params: dict):
+                     obd: Obdobie, params: dict, metodika: str = ""):
     wb = Workbook()
-    ws = wb.active
-    ws.title = "Učitelia"
+    ws0 = wb.active
+    ws0.title = "Skóre učiteľov"
+    zahrnuti = sorted((r for r in ucitelia if r.zahrnuty),
+                      key=lambda r: (r.ucitel.fakulta, r.poradie if r.poradie is not None else 10 ** 6))
+    _list(ws0, STLPCE_SKORE, zahrnuti)
+    ws = wb.create_sheet("Záťaž učiteľov")
     _list(ws, STLPCE_UCITELIA, ucitelia, pct_cols=("Vzdelávanie % fondu", "Spolu % fondu"))
     status_col = [h for h, _, _ in STLPCE_UCITELIA].index("Status (čl. 7)") + 1
     for i in range(2, len(ucitelia) + 2):
@@ -110,7 +136,11 @@ def export_vysledkov(path: str | Path, ucitelia: list[VysledokUcitela], ustavy: 
     info = [
         ("Vygenerované", dt.datetime.now().strftime("%d.%m.%Y %H:%M")),
         ("Verzia programu", __version__),
-        ("Metodika", "Metodický pokyn 1/2023 v znení Dodatku č. 2 (účinný od 1. 7. 2025)"),
+        ("Metodika", metodika or "Metodický pokyn 1/2023 v znení Dodatku č. 2 (účinný od 1. 7. 2025)"),
+        ("Skóre učiteľov", "(x − x_min)/(x_max − x_min) × 100 z prepočítaných hodnôt v rámci "
+                           + ("fakulty" if params.get("standardizacia_skupina", "fakulta") == "fakulta" else "všetkých učiteľov")
+                           + "; celkové skóre = " + " + ".join(f"{v:g} × {k}" for k, v in
+                                                              (params.get("vahy_ucitelia") or params["vahy"]).items())),
         ("Obdobie", obd.popis()),
     ]
     for oblast, reg in ustavy.regresie.items():

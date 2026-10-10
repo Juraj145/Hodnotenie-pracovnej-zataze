@@ -357,8 +357,9 @@ class ParametreDialog(tk.Toplevel):
         self.transient(master)
         self.on_save = on_save
         ttk.Label(self, padding=10, wraplength=780, text=(
-            "Hodnoty podľa Metodického pokynu 1/2023 v znení Dodatku č. 2. Pri ďalšom dodatku ich môžete upraviť tu – "
-            "uložia sa do súboru parametre.json v priečinku s dátami. Tlačidlom „Predvolené“ sa vrátite k hodnotám pokynu.\n"
+            "Parametre výpočtu. Pri novom dodatku pokynu ich program prevezme automaticky po nahratí dokumentu v časti "
+            "Podmienky hodnotenia; tu ich môžete upraviť ručne. Uložia sa do súboru parametre.json v priečinku s dátami. "
+            "Tlačidlom „Predvolené“ sa vrátite k hodnotám Metodického pokynu 1/2023 v znení Dodatku č. 2.\n"
             "en_koef_nasobi_pripravu: true = hodina výučby v EN sa počíta 2 × 3 = 6 h; false = 3 h.")).pack(fill="x")
         self.text = scrolledtext.ScrolledText(self, font=("Consolas", 10), undo=True)
         self.text.pack(fill="both", expand=True, padx=10)
@@ -376,8 +377,11 @@ class ParametreDialog(tk.Toplevel):
 
     def uloz(self):
         try:
-            p = json.loads(self.text.get("1.0", "end"))
-            p = config._merge(config.DEFAULT_PARAMETRE, p)
+            zadane = json.loads(self.text.get("1.0", "end"))
+            p = config._merge(config.DEFAULT_PARAMETRE, zadane)
+            for k in ("koef_odbor", "body_publikacie"):
+                if isinstance(zadane.get(k), dict) and zadane[k]:
+                    p[k] = zadane[k]
             float(p["fond_hodin_rok"])
             assert abs(sum(p["vahy"].values()) - 1) < 1e-6, "Súčet váh musí byť 1."
         except (ValueError, KeyError, AssertionError) as e:

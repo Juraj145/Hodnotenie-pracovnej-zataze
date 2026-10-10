@@ -35,6 +35,7 @@ def napln_ukazkove_data(db: Databaza, seed: int = 7):
                        titul_za="PhD.", fakulta=fak, ustav=ustav, funkcia=funkcia,
                        uvazok=rnd.choice([1, 1, 1, 1, 0.5, 0.2]),
                        podiel_aktivny=rnd.choice([1, 1, 1, 1, 1, 0.5]))
+            u.aktivny_vzdelavanie = u.aktivny_publikacie = u.aktivny_projekty = u.podiel_aktivny
             db.uloz(u, commit=False)
             ucitelia.append((u, odbor, ref))
     for u, odbor, ref in ucitelia:

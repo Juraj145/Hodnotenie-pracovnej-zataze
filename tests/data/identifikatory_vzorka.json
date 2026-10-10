@@ -1,0 +1,103 @@
+{
+ "auth": {
+  "Kosiba": [
+   {
+    "t001": "0188693",
+    "data": [
+     "001    0188693",
+     "100 1  \u001faKosiba, Rudolf"
+    ]
+   },
+   {
+    "t001": "0348694",
+    "data": [
+     "001    0348694",
+     "024 7  \u001fa0000-0002-4213-6374\u001f2orcid\u001f1https://orcid.org/0000-0002-4213-6374",
+     "035    \u001faperson/118141\u001f2CREPC2",
+     "100 1  \u001faKosiba, Ján,\u001fd1983-",
+     "670    \u001fawww.uniag.sk (SPU v Nitre, 1.3.2017)\u001fbIng., PhD., doc., motorové vozidlá, doprava",
+     "C48    \u001f7spu_us_auth*0434248\u001fXSlovenská poľnohospodárska univerzita (Nitra, Slovensko). Technická fakulta.\u001faSPUTFA32\u001fe01.09.2021\u001fkP\u001fp100 %"
+    ]
+   }
+  ],
+  "Jablonický": [
+   {
+    "t001": "0195973",
+    "data": [
+     "001    0195973",
+     "100 1  \u001faJablonický, Peter",
+     "670    \u001faVýživná hodnota a silážovateľnosť hybridov kukurice siatej, 2012\u001fbIng., pestovanie rastlín"
+    ]
+   },
+   {
+    "t001": "0016786",
+    "data": [
+     "001    0016786",
+     "024 7  \u001fa0000-0003-4512-4675\u001f2orcid\u001f1https://orcid.org/0000-0003-4512-4675",
+     "035    \u001faperson/112880\u001f2CREPC2",
+     "100 1  \u001faJablonický, Juraj,\u001fd1976-",
+     "C48    \u001f7spu_us_auth*0434248\u001fXSlovenská poľnohospodárska univerzita (Nitra, Slovensko). Technická fakulta.\u001faSPUTFA32\u001fe01.09.2021\u001fkP\u001fp100 %"
+    ]
+   }
+  ],
+  "Gálik": [
+   {
+    "t001": "0362224",
+    "data": [
+     "001    0362224",
+     "100 1  \u001faGálik, Roman",
+     "670    \u001faVýchovné problémy edukantov s akcentom na šikanovanie, 2005"
+    ]
+   },
+   {
+    "t001": "0076052",
+    "data": [
+     "001    0076052",
+     "035    \u001faperson/106727\u001f2CREPC2",
+     "100 1  \u001faGálik, Branislav,\u001fd1980-",
+     "C48    \u001f7spu_us_auth*0434258\u001fXSlovenská poľnohospodárska univerzita (Nitra, Slovensko). Fakulta agrobiológie a potravinových zdrojov.\u001faSPUFAP33\u001fe01.09.2021\u001fkP\u001fp100 %"
+    ]
+   }
+  ]
+ },
+ "orcid_search_kosiba": {
+  "expanded-result": [
+   {
+    "orcid-id": "0000-0002-4213-6374",
+    "given-names": "Ján",
+    "family-names": "Kosiba",
+    "credit-name": null,
+    "other-name": [],
+    "email": [],
+    "institution-name": [
+     "Slovak University of Agriculture in Nitra"
+    ]
+   }
+  ],
+  "num-found": 1
+ },
+ "orcid_ext_kosiba": {
+  "external-identifier": [
+   {
+    "external-id-type": "Scopus Author ID",
+    "external-id-value": "36486690100"
+   },
+   {
+    "external-id-type": "ResearcherID",
+    "external-id-value": "F-5386-2017"
+   },
+   {
+    "external-id-type": "SciProfiles",
+    "external-id-value": "258463"
+   }
+  ]
+ },
+ "orcid_ext_jablonicky": {
+  "external-identifier": [
+   {
+    "external-id-type": "Scopus Author ID",
+    "external-id-value": "36126184100"
+   }
+  ]
+ }
+}

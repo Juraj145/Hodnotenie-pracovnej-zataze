@@ -22,7 +22,20 @@ AKTUALIZÁCIE
    Program pri spustení skontroluje novú verziu na GitHube a ponúkne „Aktualizovať teraz“.
    Stiahne nový balík, overí kontrolný súčet, vymení súbory v tomto priečinku a reštartuje sa.
 
+POSTUP V PROGRAME (bočná ponuka vľavo)
+   1 Podmienky hodnotenia – nahrajte dokument metodiky (PDF/DOCX); pri novom dodatku nahrajte nový
+     dokument a program prevezme zmenené hodnoty.
+   2 Obdobie hodnotenia – roky podľa pokynu, podľa údajov alebo vlastné (aj jeden akademický rok).
+   3–7 Údaje – učitelia, výučba, záverečné práce, projekty, publikácie (z UIS, knižnice SPU, súborov
+     alebo ručne). Učiteľom doplníte ORCID / Scopus / WoS tlačidlom „Doplniť ORCID / Scopus / WoS“.
+   8 Kontrola údajov – čo chýba na výpočet.
+   9–10 Výsledky – učitelia (záťaž, skóre, poradie) a ústavy; export do Excelu.
+
 ÚDAJE
-   Vaše údaje sú uložené oddelene v %APPDATA%\SPU-Zataz a aktualizácia ich nemení.
+   Program si údaje pamätá v %APPDATA%\SPU-Zataz a aktualizácia ich nemení.
+   Tlačidlom „Uložiť údaje“ ich uložíte do zvoleného priečinka so zložkami
+   01 Podmienky hodnotenia, 02 Zoznam učiteľov, 03 Výučba, 04 Záverečné práce, 05 Projekty,
+   06 Publikácie, 07 Výsledky (bežné súbory Excelu). „Načítať údaje“ ich načíta späť
+   – napr. na inom počítači alebo pre iné hodnotenie.
 
 Ak sa program nespustí, pozrite súbor chyba.log v tomto priečinku.

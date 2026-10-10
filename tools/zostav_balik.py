@@ -1,7 +1,7 @@
 """Zostaví balík SPU-Zataz-python.zip (spustenie cez nainštalovaný Python).
 
 Použitie:  python tools/zostav_balik.py <priečinok s knižnicami> <výstupný zip>
-Knižnice pripravíte príkazom:  pip install --target build/lib openpyxl
+Knižnice pripravíte príkazom:  pip install --target build/lib openpyxl pypdf
 """
 
 import sys

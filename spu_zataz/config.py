@@ -92,7 +92,24 @@ DEFAULT_PARAMETRE: dict = {
     "pocet_akad_rokov": 2,
     "pocet_rokov_publikacie": 3,
     "pocet_rokov_projekty": 3,
+    # obdobie „podľa pokynu“ k dátumu hodnotenia: posledný započítaný kalendárny rok = rok hodnotenia − posun
+    # (publikácie: rok s uzávierkou v CREPČ najneskôr 31. 12. predchádzajúceho roka → rok hodnotenia − 2;
+    #  projekty: posledný rok zverejnený CVTI SR – overte a prípadne zmeňte)
+    "posun_rokov_publikacie": 2,
+    "posun_rokov_projekty": 2,
+    # mesiac začiatku akademického roka (ukončený akademický rok = skončil pred týmto mesiacom)
+    "zaciatok_ak_roka_mesiac": 9,
+    # čl. 7 ods. 1.5 – štandardizácia (x − min)/(max − min) × 100 v rámci fakulty („fakulta“) alebo všetkých učiteľov („vsetci“)
+    "standardizacia_skupina": "fakulta",
+    # celkové skóre učiteľa – váhy oblastí (rovnaké ako sumárne skóre pracoviska, čl. 6 ods. 1)
+    "vahy_ucitelia": {"vzdelavanie": 0.4, "publikacie": 0.4, "projekty": 0.2},
+    # čl. 3 ods. 1, čl. 4 ods. 2, čl. 5 ods. 1 B – chýbajúca časť obdobia (nástup, materská/rodičovská)
+    # sa nahradí priemerom fakulty (prepočítané hodnoty)
+    "prepocet_chybajuceho_obdobia": True,
 }
+
+OBLASTI = ("vzdelavanie", "publikacie", "projekty")
+NAZVY_OBLASTI = {"vzdelavanie": "Vzdelávanie", "publikacie": "Publikácie", "projekty": "Projekty"}
 
 
 def app_data_dir() -> Path:
@@ -127,7 +144,13 @@ def load_parametre() -> dict:
     if path.exists():
         try:
             with open(path, encoding="utf-8") as f:
-                return _merge(DEFAULT_PARAMETRE, json.load(f))
+                ulozene = json.load(f)
+            out = _merge(DEFAULT_PARAMETRE, ulozene)
+            # tabuľky, ktoré metodika môže skrátiť (zrušený odbor, kategória), sa preberajú celé
+            for k in ("koef_odbor", "body_publikacie"):
+                if isinstance(ulozene.get(k), dict) and ulozene[k]:
+                    out[k] = ulozene[k]
+            return out
         except (OSError, ValueError):
             pass
     return copy.deepcopy(DEFAULT_PARAMETRE)
@@ -146,6 +169,8 @@ DEFAULT_NASTAVENIA = {
     "wos_api_key": "",
     "kontrolovat_aktualizacie": True,
     "preskocena_verzia": "",
+    "pracovny_priecinok": "",
+    "obdobie": {},
 }
 
 

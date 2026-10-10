@@ -64,7 +64,7 @@ jobs:
 
       - name: Balík pre spustenie cez Python
         run: |
-          pip install --target build/lib openpyxl
+          pip install --target build/lib openpyxl pypdf
           python tools/zostav_balik.py build/lib dist/SPU-Zataz-python.zip
 
       - name: Test aktualizácie balíka pre Python

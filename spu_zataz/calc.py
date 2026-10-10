@@ -2,15 +2,26 @@
 
 Modul neobsahuje nič z grafického rozhrania, aby sa dal samostatne testovať.
 Odkazy v komentároch (čl., ods., tab.) smerujú na metodický pokyn.
+
+Postup overený na výsledkoch ústavu UPTDB TF (hárok so stĺpcami Skóre vzdelávanie / publikácie / projekty,
+Celkové skóre, pôvodné a prepočítané hodnoty):
+  * pôvodná hodnota oblasti = priemer za rok (vzdelávanie v hodinách, publikácie v bodoch tab. 3,
+    projekty = podiel na financiách v €),
+  * prepočítaná hodnota = pôvodná + chýbajúca časť obdobia × priemer fakulty (čl. 3 ods. 1, čl. 4 ods. 2,
+    čl. 5 ods. 1 B – chýbajúca časť sa nahradí priemerom príslušnej fakulty),
+  * skóre oblasti = (x − x_min) / (x_max − x_min) × 100 z prepočítaných hodnôt (čl. 7 ods. 1.5),
+  * celkové skóre = 0,4 · vzdelávanie + 0,4 · publikácie + 0,2 · projekty (váhy čl. 6 ods. 1).
 """
 
 from __future__ import annotations
 
+import datetime as dt
 import math
 from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Optional
 
+from .config import OBLASTI
 from .models import Data, Projekt, Publikacia, Ucitel
 
 
@@ -18,7 +29,7 @@ from .models import Data, Projekt, Publikacia, Ucitel
 
 @dataclass
 class Obdobie:
-    ak_roky: list[str]          # 2 posledné ukončené akademické roky (čl. 3 ods. 1)
+    ak_roky: list[str]          # 2 posledné ukončené akademické roky (čl. 3 ods. 1) – alebo jeden zvolený
     roky_publikacie: list[int]  # 3 kalendárne roky (čl. 4 ods. 1)
     roky_projekty: list[int]    # 3 verifikované kalendárne roky (čl. 5 ods. 1)
 
@@ -27,19 +38,57 @@ class Obdobie:
                 f"Publikácie: {', '.join(map(str, self.roky_publikacie)) or '–'} | "
                 f"Projekty: {', '.join(map(str, self.roky_projekty)) or '–'}")
 
+    def pocet(self, oblast: str) -> int:
+        return max(len({"vzdelavanie": self.ak_roky, "publikacie": self.roky_publikacie,
+                        "projekty": self.roky_projekty}[oblast]), 1)
 
-def _ak_rok_start(ak_rok: str) -> int:
+
+def ak_rok_start(ak_rok: str) -> int:
     try:
         return int(str(ak_rok).replace("-", "/").split("/")[0])
     except ValueError:
         return 0
 
 
+_ak_rok_start = ak_rok_start
+
+
+def ak_rok_text(start: int) -> str:
+    return f"{start}/{start + 1}"
+
+
+def obdobie_podla_pokynu(params: dict, datum: Optional[dt.date] = None) -> Obdobie:
+    """Sledované obdobie podľa čl. 2 ods. 2 k dátumu hodnotenia.
+
+    vzdelávanie: dva posledné ukončené akademické roky,
+    publikácie: tri kalendárne roky s uzávierkou v CREPČ najneskôr 31. 12. predchádzajúceho roka,
+    projekty: tri posledné verifikované kalendárne roky (CVTI SR).
+    """
+    d = datum or dt.date.today()
+    # akademický rok, ktorý práve prebieha, sa začal v roku d.year (od septembra) alebo d.year − 1
+    prebieha = d.year if d.month >= params.get("zaciatok_ak_roka_mesiac", 9) else d.year - 1
+    n_ak = params["pocet_akad_rokov"]
+    ak = [ak_rok_text(s) for s in range(prebieha - n_ak, prebieha)]
+    posl_pub = d.year - params.get("posun_rokov_publikacie", 2)
+    posl_prj = d.year - params.get("posun_rokov_projekty", 2)
+    return Obdobie(ak_roky=ak,
+                   roky_publikacie=list(range(posl_pub - params["pocet_rokov_publikacie"] + 1, posl_pub + 1)),
+                   roky_projekty=list(range(posl_prj - params["pocet_rokov_projekty"] + 1, posl_prj + 1)))
+
+
+def roky_v_udajoch(data: Data) -> dict[str, list]:
+    """Akademické a kalendárne roky, za ktoré sú v databáze údaje."""
+    return {
+        "ak_roky": sorted({v.ak_rok for v in data.vyucba if v.ak_rok} | {z.ak_rok for z in data.zaverecne_prace if z.ak_rok},
+                          key=ak_rok_start),
+        "publikacie": sorted({p.rok for p in data.publikacie if p.rok}),
+        "projekty": sorted({p.rok for p in data.projekty if p.rok}),
+    }
+
+
 def navrhni_obdobie(data: Data, params: dict) -> Obdobie:
-    """Navrhne sledované obdobie podľa najnovších údajov v databáze."""
-    ak = sorted({v.ak_rok for v in data.vyucba} | {z.ak_rok for z in data.zaverecne_prace}, key=_ak_rok_start)
-    pub = sorted({p.rok for p in data.publikacie if p.rok})
-    prj = sorted({p.rok for p in data.projekty if p.rok})
+    """Navrhne sledované obdobie podľa najnovších údajov v databáze (posledné 2 ak. roky, 3 kalendárne roky)."""
+    r = roky_v_udajoch(data)
 
     def posledne_roky(roky: list[int], n: int) -> list[int]:
         if not roky:
@@ -48,9 +97,9 @@ def navrhni_obdobie(data: Data, params: dict) -> Obdobie:
         return list(range(last - n + 1, last + 1))
 
     return Obdobie(
-        ak_roky=ak[-params["pocet_akad_rokov"]:],
-        roky_publikacie=posledne_roky(pub, params["pocet_rokov_publikacie"]),
-        roky_projekty=posledne_roky(prj, params["pocet_rokov_projekty"]),
+        ak_roky=r["ak_roky"][-params["pocet_akad_rokov"]:],
+        roky_publikacie=posledne_roky(r["publikacie"], params["pocet_rokov_publikacie"]),
+        roky_projekty=posledne_roky(r["projekty"], params["pocet_rokov_projekty"]),
     )
 
 
@@ -82,18 +131,35 @@ def kapacita_projektu(projekt: Projekt, ucasti_hodiny: list[float]) -> float:
     return sum(ucasti_hodiny)
 
 
+def koeficient_odboru(odbor: str, params: dict) -> float:
+    if not odbor:
+        return 1.0
+    tab = params["koef_odbor"]
+    if odbor in tab:
+        return float(tab[odbor])
+    low = odbor.strip().lower()
+    for k, v in tab.items():
+        if k.lower() == low or k.lower() in low:
+            return float(v)
+    return 1.0
+
+
 # ---------------------------------------------------------------- výsledky učiteľov
 
 @dataclass
 class VysledokUcitela:
     ucitel: Ucitel
-    zahrnuty: bool                    # úväzok ≥ 25 % (čl. 1 ods. 3)
+    zahrnuty: bool                    # prepočítaný úväzok ≥ 25 % vo všetkých oblastiach (čl. 1 ods. 3)
     fond_hodin: float
     # vzdelávanie – priemer za akademický rok
     h_vyucba: float = 0.0             # (2 resp. 6) × hodiny priamej výučby
     h_studenti: float = 0.0           # 0,25 h × študent
     h_zaverecne_prace: float = 0.0    # tab. 1
     h_vzdelavanie: float = 0.0
+    hodiny_priamej_vyucby: float = 0.0
+    pocet_studentov: float = 0.0
+    studentohodiny: float = 0.0       # študentohodiny × koeficient odboru (pre ústav), priemer za ak. rok
+    studentohodiny_prepocitane: float = 0.0
     vyucba_tyzden: float = 0.0        # hodiny priamej výučby / týždeň (pre porovnanie s pozn. 1)
     referencna_vyucba_tyzden: Optional[float] = None
     # projekty – priemer za kalendárny rok
@@ -101,15 +167,36 @@ class VysledokUcitela:
     financie_projekty: float = 0.0    # podiel na financiách (čl. 5 ods. 1 A)
     # publikácie – priemer za rok
     body_publikacie: float = 0.0
-    # percentá z fondu
+    pocet_publikacii: int = 0
+    # percentá z fondu (za čas, keď bol učiteľ aktívny)
     pct_vzdelavanie: float = 0.0
     pct_spolu: float = 0.0
     status: str = ""
+    dovod_vylucenia: str = ""
     upozornenia: list[str] = field(default_factory=list)
-    # min-max štandardizácia (čl. 7 ods. 1.5)
-    std_vzdelavanie: Optional[float] = None
-    std_publikacie: Optional[float] = None
-    std_projekty: Optional[float] = None
+    # po oblastiach: aktivita (0–1), pôvodná a prepočítaná hodnota, skóre 0–100 (čl. 7 ods. 1.5)
+    aktivita: dict = field(default_factory=dict)
+    povodne: dict = field(default_factory=dict)
+    prepocitane: dict = field(default_factory=dict)
+    skore: dict = field(default_factory=dict)
+    celkove_skore: Optional[float] = None
+    poradie: Optional[int] = None     # poradie podľa celkového skóre v rámci skupiny štandardizácie
+
+    # kompatibilita so staršími výstupmi (0–1)
+    @property
+    def std_vzdelavanie(self) -> Optional[float]:
+        s = self.skore.get("vzdelavanie")
+        return None if s is None else s / 100
+
+    @property
+    def std_publikacie(self) -> Optional[float]:
+        s = self.skore.get("publikacie")
+        return None if s is None else s / 100
+
+    @property
+    def std_projekty(self) -> Optional[float]:
+        s = self.skore.get("projekty")
+        return None if s is None else s / 100
 
 
 def status_zataze(pct_vzd: float, pct_spolu: float, params: dict) -> str:
@@ -125,29 +212,39 @@ def status_zataze(pct_vzd: float, pct_spolu: float, params: dict) -> str:
     return "Nad ideálnym intervalom (60–80 %)"
 
 
-def _minmax(values: list[float]) -> list[Optional[float]]:
+def minmax_skore(values: list[float]) -> list[float]:
+    """(x − x_min) / (x_max − x_min) × 100 (čl. 7 ods. 1.5)."""
     if not values:
         return []
     lo, hi = min(values), max(values)
     if hi == lo:
         return [0.0 for _ in values]
-    return [(v - lo) / (hi - lo) for v in values]
+    return [100 * (v - lo) / (hi - lo) for v in values]
+
+
+def _minmax(values: list[float]) -> list[float]:
+    return [v / 100 for v in minmax_skore(values)]
+
+
+def skupina_standardizacie(u: Ucitel, params: dict) -> str:
+    return u.fakulta or "" if params.get("standardizacia_skupina", "fakulta") == "fakulta" else "*"
 
 
 def vypocitaj_ucitelov(data: Data, obd: Obdobie, params: dict) -> list[VysledokUcitela]:
-    n_ak = max(len(obd.ak_roky), 1)
-    n_pub = max(len(obd.roky_publikacie), 1)
-    n_prj = max(len(obd.roky_projekty), 1)
+    n_ak, n_pub, n_prj = obd.pocet("vzdelavanie"), obd.pocet("publikacie"), obd.pocet("projekty")
     ak_set, pub_set, prj_set = set(obd.ak_roky), set(obd.roky_publikacie), set(obd.roky_projekty)
 
     vyucba_h = defaultdict(float)
     vyucba_raw = defaultdict(float)
     studenti = defaultdict(float)
+    sh = defaultdict(float)
     for v in data.vyucba:
         if v.ak_rok in ak_set:
             vyucba_h[v.ucitel_id] += hodiny_vyucby_zataz(v.hodiny, v.jazyk, params)
             vyucba_raw[v.ucitel_id] += v.hodiny
             studenti[v.ucitel_id] += v.pocet_studentov
+            s = v.studentohodiny if v.studentohodiny and v.studentohodiny > 0 else v.hodiny * v.pocet_studentov
+            sh[v.ucitel_id] += s * koeficient_odboru(v.odbor, params)
 
     zp_h = defaultdict(float)
     for z in data.zaverecne_prace:
@@ -155,45 +252,110 @@ def vypocitaj_ucitelov(data: Data, obd: Obdobie, params: dict) -> list[VysledokU
             zp_h[z.ucitel_id] += params["hodiny_zaverecna_praca"].get(z.stupen, 0.0) * z.pocet
 
     pub_body = defaultdict(float)
+    pub_pocet = defaultdict(int)
     for p in data.publikacie:
         if p.rok in pub_set:
             pub_body[p.ucitel_id] += body_publikacie(p, params)
+            pub_pocet[p.ucitel_id] += 1
 
     prj_hod, prj_fin, prj_odhad = financie_projektov_ucitelov(data, prj_set, params)
 
     out: list[VysledokUcitela] = []
     for u in data.ucitelia:
-        fond = params["fond_hodin_rok"] * (u.uvazok or 0)
-        r = VysledokUcitela(ucitel=u, zahrnuty=(u.uvazok or 0) >= params["min_uvazok"], fond_hodin=fond)
+        uv = u.uvazok or 0
+        fond = params["fond_hodin_rok"] * uv
+        r = VysledokUcitela(ucitel=u, zahrnuty=True, fond_hodin=fond)
+        r.aktivita = {o: u.aktivita(o) for o in OBLASTI}
+        nizke = [o for o in OBLASTI if uv * r.aktivita[o] < params["min_uvazok"] - 1e-9]
+        if nizke:
+            r.zahrnuty = False
+            r.dovod_vylucenia = ("prepočítaný úväzok < 25 % (" + ", ".join(
+                f"{o}: {uv * r.aktivita[o] * 100:.0f} %" for o in nizke) + ")")
         r.h_vyucba = vyucba_h[u.id] / n_ak
         r.h_studenti = params["hodiny_na_studenta"] * studenti[u.id] / n_ak
         r.h_zaverecne_prace = zp_h[u.id] / n_ak
         r.h_vzdelavanie = r.h_vyucba + r.h_studenti + r.h_zaverecne_prace
-        r.vyucba_tyzden = vyucba_raw[u.id] / n_ak / params["tyzdne_vyucby"]
+        r.hodiny_priamej_vyucby = vyucba_raw[u.id] / n_ak
+        r.pocet_studentov = studenti[u.id] / n_ak
+        r.studentohodiny = sh[u.id] / n_ak
         r.referencna_vyucba_tyzden = params["referencna_vyucba_tyzden"].get(u.funkcia)
         r.h_projekty = prj_hod[u.id] / n_prj
         r.financie_projekty = prj_fin[u.id] / n_prj
         r.body_publikacie = pub_body[u.id] / n_pub
+        r.pocet_publikacii = pub_pocet[u.id]
+        r.povodne = {"vzdelavanie": r.h_vzdelavanie, "publikacie": r.body_publikacie, "projekty": r.financie_projekty}
+
+        # záťaž v % fondu za čas, keď bol učiteľ aktívny (priemer cez obdobie s materskou by ju podhodnotil)
+        a_vzd, a_prj = r.aktivita["vzdelavanie"], r.aktivita["projekty"]
         if fond > 0:
-            r.pct_vzdelavanie = 100 * r.h_vzdelavanie / fond
-            r.pct_spolu = 100 * (r.h_vzdelavanie + r.h_projekty) / fond
-        r.status = status_zataze(r.pct_vzdelavanie, r.pct_spolu, params) if r.zahrnuty else "Nezahrnutý (úväzok < 25 %)"
+            vzd_akt = r.h_vzdelavanie / a_vzd if a_vzd > 0 else 0.0
+            prj_akt = r.h_projekty / a_prj if a_prj > 0 else 0.0
+            r.pct_vzdelavanie = 100 * vzd_akt / fond
+            r.pct_spolu = 100 * (vzd_akt + prj_akt) / fond
+        akt_tyz = r.hodiny_priamej_vyucby / a_vzd if a_vzd > 0 else 0.0
+        r.vyucba_tyzden = akt_tyz / params["tyzdne_vyucby"]
+        r.status = (status_zataze(r.pct_vzdelavanie, r.pct_spolu, params) if r.zahrnuty
+                    else f"Nezahrnutý – {r.dovod_vylucenia}")
         if r.zahrnuty and r.referencna_vyucba_tyzden and r.vyucba_tyzden > r.referencna_vyucba_tyzden * 1.0001:
             r.upozornenia.append(
-                f"Priama výučba {r.vyucba_tyzden:.1f} h/týž. presahuje referenčných {r.referencna_vyucba_tyzden} h/týž.")
-        if r.zahrnuty and u.id in prj_odhad:
+                f"Priama výučba {r.vyucba_tyzden:.1f} h/týž. presahuje referenčných {r.referencna_vyucba_tyzden} h/týž. (pozn. 1).")
+        if u.id in prj_odhad:
             r.upozornenia.append("Podiel na financiách projektov je odhadnutý rovným dielom – chýbajú vykázané hodiny "
                                  "(doplňte ich importom „Účasť na projektoch“ z UIS).")
         if r.zahrnuty and r.pct_spolu > params["hranica_pretazenia"] >= r.pct_vzdelavanie:
             r.upozornenia.append("Vzdelávanie + projekty prekračujú fond pracovného času (čl. 3 ods. 5, čl. 5 ods. 3).")
+        if any(a < 1 for a in r.aktivita.values()):
+            r.upozornenia.append("Učiteľ nebol aktívny celé obdobie (" + ", ".join(
+                f"{o} {a * 100:.0f} %" for o, a in r.aktivita.items() if a < 1)
+                + ") – chýbajúca časť je nahradená priemerom fakulty (prepočítané hodnoty).")
         out.append(r)
 
-    zahrnuti = [r for r in out if r.zahrnuty]
-    for attr, src in (("std_vzdelavanie", "h_vzdelavanie"), ("std_publikacie", "body_publikacie"),
-                      ("std_projekty", "financie_projekty")):
-        for r, s in zip(zahrnuti, _minmax([getattr(r, src) for r in zahrnuti])):
-            setattr(r, attr, s)
+    _prepocitaj_chybajuce_obdobie(out, params)
+    _standardizuj(out, params)
     return out
+
+
+def priemery_fakult(vysledky: list[VysledokUcitela], hodnota) -> dict[tuple[str, str], float]:
+    """Priemer fakulty pre každú oblasť: priemer pôvodných hodnôt zahrnutých učiteľov fakulty,
+    ktorí boli aktívni celé obdobie oblasti (ak taký nie je, všetkých zahrnutých učiteľov fakulty)."""
+    out = {}
+    fakulty = {r.ucitel.fakulta or "" for r in vysledky}
+    for f in fakulty:
+        for o in OBLASTI:
+            zakl = [r for r in vysledky if (r.ucitel.fakulta or "") == f and r.zahrnuty]
+            plni = [r for r in zakl if r.aktivita.get(o, 1) >= 0.999] or zakl
+            out[(f, o)] = sum(hodnota(r, o) for r in plni) / len(plni) if plni else 0.0
+    return out
+
+
+def _prepocitaj_chybajuce_obdobie(vysledky: list[VysledokUcitela], params: dict):
+    prepocet = params.get("prepocet_chybajuceho_obdobia", True)
+    priem = priemery_fakult(vysledky, lambda r, o: r.povodne[o])
+    priem_sh = priemery_fakult(vysledky, lambda r, o: r.studentohodiny if o == "vzdelavanie" else 0.0)
+    for r in vysledky:
+        f = r.ucitel.fakulta or ""
+        r.prepocitane = {}
+        for o in OBLASTI:
+            chyba = 1 - r.aktivita.get(o, 1) if prepocet else 0.0
+            r.prepocitane[o] = r.povodne[o] + chyba * priem[(f, o)]
+        chyba = 1 - r.aktivita.get("vzdelavanie", 1) if prepocet else 0.0
+        r.studentohodiny_prepocitane = r.studentohodiny + chyba * priem_sh[(f, "vzdelavanie")]
+
+
+def _standardizuj(vysledky: list[VysledokUcitela], params: dict):
+    vahy = params.get("vahy_ucitelia") or params["vahy"]
+    skupiny: dict[str, list[VysledokUcitela]] = defaultdict(list)
+    for r in vysledky:
+        if r.zahrnuty:
+            skupiny[skupina_standardizacie(r.ucitel, params)].append(r)
+    for clenovia in skupiny.values():
+        for o in OBLASTI:
+            for r, s in zip(clenovia, minmax_skore([r.prepocitane[o] for r in clenovia])):
+                r.skore[o] = s
+        for r in clenovia:
+            r.celkove_skore = sum(vahy[o] * r.skore[o] for o in OBLASTI)
+        for i, r in enumerate(sorted(clenovia, key=lambda x: -x.celkove_skore), start=1):
+            r.poradie = i
 
 
 def financie_projektov_ucitelov(data: Data, roky: set[int], params: dict):
@@ -266,7 +428,8 @@ def regresia_cez_pociatok(xs: list[float], ys: list[float]) -> Optional[Regresia
 class VysledokUstavu:
     fakulta: str
     ustav: str
-    uvazky: float = 0.0               # prepočítaný počet učiteľov
+    uvazky: float = 0.0               # prepočítaný počet učiteľov (vzdelávanie)
+    uvazky_oblasti: dict = field(default_factory=dict)
     pocet_ucitelov: int = 0
     vykon_vzdelavanie: float = 0.0    # študentohodiny × koef. odboru (priemer za ak. rok)
     vykon_publikacie: float = 0.0     # body za publikácie (priemer za rok)
@@ -292,10 +455,10 @@ class VysledokUstavov:
     upozornenia: list[str] = field(default_factory=list)
 
 
-def efektivne_uvazky(data: Data) -> dict[int, float]:
+def efektivne_uvazky(data: Data, oblast: str = "vzdelavanie") -> dict[int, float]:
     """Úväzok pre model ústavov (čl. 3 ods. 1, čl. 4 ods. 2, čl. 5 ods. 1 B).
 
-    Chýbajúca časť obdobia (neskorší nástup, materská/rodičovská) sa nahradí
+    Chýbajúca časť obdobia oblasti (neskorší nástup, materská/rodičovská) sa nahradí
     priemerným úväzkom príslušnej fakulty.
     """
     podla_fakulty = defaultdict(list)
@@ -304,31 +467,17 @@ def efektivne_uvazky(data: Data) -> dict[int, float]:
     priemer = {f: (sum(v) / len(v) if v else 0.0) for f, v in podla_fakulty.items()}
     out = {}
     for u in data.ucitelia:
-        a = min(max(u.podiel_aktivny if u.podiel_aktivny is not None else 1.0, 0.0), 1.0)
+        a = u.aktivita(oblast)
         out[u.id] = (u.uvazok or 0) * a + priemer[u.fakulta] * (1 - a)
     return out
-
-
-def koeficient_odboru(odbor: str, params: dict) -> float:
-    if not odbor:
-        return 1.0
-    tab = params["koef_odbor"]
-    if odbor in tab:
-        return float(tab[odbor])
-    low = odbor.strip().lower()
-    for k, v in tab.items():
-        if k.lower() == low or k.lower() in low:
-            return float(v)
-    return 1.0
 
 
 def vypocitaj_ustavy(data: Data, obd: Obdobie, params: dict,
                      vysledky_ucitelov: Optional[list[VysledokUcitela]] = None) -> VysledokUstavov:
     if vysledky_ucitelov is None:
         vysledky_ucitelov = vypocitaj_ucitelov(data, obd, params)
-    uvazky = efektivne_uvazky(data)
+    uvazky = {o: efektivne_uvazky(data, o) for o in OBLASTI}
     ucitel_ustav = {u.id: (u.fakulta, u.ustav) for u in data.ucitelia}
-    n_ak = max(len(obd.ak_roky), 1)
     ak_set = set(obd.ak_roky)
     upozornenia = []
 
@@ -336,38 +485,40 @@ def vypocitaj_ustavy(data: Data, obd: Obdobie, params: dict,
 
     def get(key):
         if key not in ustavy:
-            ustavy[key] = VysledokUstavu(fakulta=key[0], ustav=key[1])
+            ustavy[key] = VysledokUstavu(fakulta=key[0], ustav=key[1], uvazky_oblasti={o: 0.0 for o in OBLASTI})
         return ustavy[key]
 
     for u in data.ucitelia:
         if not u.ustav:
             continue
         r = get((u.fakulta, u.ustav))
-        r.uvazky += uvazky[u.id]
+        for o in OBLASTI:
+            r.uvazky_oblasti[o] += uvazky[o][u.id]
+        r.uvazky = r.uvazky_oblasti["vzdelavanie"]
         r.pocet_ucitelov += 1
 
-    nezname_odbory = set()
-    for v in data.vyucba:
-        if v.ak_rok in ak_set and v.ucitel_id in ucitel_ustav and ucitel_ustav[v.ucitel_id][1]:
-            if v.odbor and v.odbor not in params["koef_odbor"]:
-                nezname_odbory.add(v.odbor)
-            sh = v.studentohodiny if v.studentohodiny and v.studentohodiny > 0 else v.hodiny * v.pocet_studentov
-            get(ucitel_ustav[v.ucitel_id]).vykon_vzdelavanie += sh * koeficient_odboru(v.odbor, params) / n_ak
+    nezname_odbory = {v.odbor for v in data.vyucba if v.ak_rok in ak_set and v.odbor and v.odbor not in params["koef_odbor"]}
     if nezname_odbory:
         upozornenia.append("Odbory bez koeficientu v tab. 2 (použitý najbližší alebo 1,0): " + ", ".join(sorted(nezname_odbory)))
 
+    # výkony ústavu = súčet prepočítaných hodnôt jeho učiteľov (aj tých s úväzkom < 25 % – tie sa vylučujú
+    # iba z výpočtov na úrovni pracovníkov, čl. 1 ods. 3)
     for r in vysledky_ucitelov:
         key = ucitel_ustav.get(r.ucitel.id)
         if key and key[1]:
-            get(key).vykon_publikacie += r.body_publikacie
-            get(key).vykon_projekty += r.financie_projekty
+            x = get(key)
+            x.vykon_vzdelavanie += r.studentohodiny_prepocitane
+            x.vykon_publikacie += r.prepocitane.get("publikacie", r.body_publikacie)
+            x.vykon_projekty += r.prepocitane.get("projekty", r.financie_projekty)
 
     zoznam = sorted(ustavy.values(), key=lambda x: (x.fakulta, x.ustav))
-    x = [u.uvazky for u in zoznam]
     regresie = {
-        "vzdelavanie": regresia_cez_pociatok(x, [u.vykon_vzdelavanie for u in zoznam]),
-        "publikacie": regresia_cez_pociatok(x, [u.vykon_publikacie for u in zoznam]),
-        "projekty": regresia_cez_pociatok(x, [u.vykon_projekty for u in zoznam]),
+        "vzdelavanie": regresia_cez_pociatok([u.uvazky_oblasti["vzdelavanie"] for u in zoznam],
+                                             [u.vykon_vzdelavanie for u in zoznam]),
+        "publikacie": regresia_cez_pociatok([u.uvazky_oblasti["publikacie"] for u in zoznam],
+                                            [u.vykon_publikacie for u in zoznam]),
+        "projekty": regresia_cez_pociatok([u.uvazky_oblasti["projekty"] for u in zoznam],
+                                          [u.vykon_projekty for u in zoznam]),
     }
     if len(zoznam) < 3:
         upozornenia.append("Regresný model potrebuje údaje z viacerých ústavov; pri menej ako 3 ústavoch sú výsledky orientačné.")
@@ -375,13 +526,12 @@ def vypocitaj_ustavy(data: Data, obd: Obdobie, params: dict,
     vahy = params["vahy"]
     for u in zoznam:
         parts, opt_parts = [], []
-        for oblast, attr in (("vzdelavanie", "vykon_vzdelavanie"), ("publikacie", "vykon_publikacie"),
-                             ("projekty", "vykon_projekty")):
+        for oblast in OBLASTI:
             reg = regresie[oblast]
-            y = getattr(u, attr)
+            y = getattr(u, f"vykon_{oblast}")
             if reg is None:
                 continue
-            z = reg.z(u.uvazky, y)
+            z = reg.z(u.uvazky_oblasti[oblast], y)
             opt = reg.optimalny_pocet(y)
             setattr(u, f"z_{oblast}", z)
             setattr(u, f"opt_{oblast}", opt)

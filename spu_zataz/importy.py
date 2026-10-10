@@ -132,6 +132,7 @@ class Stlpec:
     prevod: Callable = to_str
     povinny: bool = False
     synonyma: tuple = ()       # alternatívne názvy stĺpcov (UIS, CREPČ)
+    v_sablone: bool = True     # False = iba pre import starších súborov
 
 
 # Polia identifikujúce učiteľa – spoločné pre všetky typy
@@ -160,7 +161,13 @@ TYPY: dict[str, TypImportu] = {
         Stlpec("funkcia", "Funkcia", to_str, False, ("funkcne miesto", "pozicia", "kategoria")),
         Stlpec("uvazok", "Úväzok (0–1)", to_uvazok, False, ("uvazok", "prepocitany uvazok", "uvazok %", "fte")),
         Stlpec("podiel_aktivny", "Podiel obdobia v PP (0–1)", lambda v: to_float(v, 1.0), False,
-               ("podiel obdobia", "aktivny podiel")),
+               ("podiel obdobia", "aktivny podiel"), v_sablone=False),
+        Stlpec("aktivny_vzdelavanie", "Aktívny – vzdelávanie (0–1)", lambda v: to_float(v, 1.0), False,
+               ("aktivny vzdelavanie", "podiel obdobia vzdelavanie")),
+        Stlpec("aktivny_publikacie", "Aktívny – publikácie (0–1)", lambda v: to_float(v, 1.0), False,
+               ("aktivny publikacie", "podiel obdobia publikacie")),
+        Stlpec("aktivny_projekty", "Aktívny – projekty (0–1)", lambda v: to_float(v, 1.0), False,
+               ("aktivny projekty", "podiel obdobia projekty")),
         Stlpec("scopus_id", "Scopus Author ID", to_str, False, ("scopus id", "scopus")),
         Stlpec("wos_id", "WoS ResearcherID", to_str, False, ("researcherid", "wos id", "researcher id")),
         Stlpec("orcid", "ORCID", to_str, False, ()),
@@ -365,6 +372,12 @@ def importuj(db: Databaza, typ_kluc: str, riadky: list[dict], mapovanie: dict[st
     for rec in zaznamy:
         try:
             if typ_kluc == "ucitelia":
+                # spoločný podiel obdobia (staršie šablóny) platí pre oblasti, ktoré nie sú zadané samostatne
+                if mapovanie.get("podiel_aktivny"):
+                    for o in ("aktivny_vzdelavanie", "aktivny_publikacie", "aktivny_projekty"):
+                        if not mapovanie.get(o):
+                            rec[o] = rec["podiel_aktivny"]
+                            mapovanie = {**mapovanie, o: mapovanie["podiel_aktivny"]}
                 u = db.najdi_ucitela(rec["osobne_cislo"], rec["meno"])
                 novy = Ucitel(**{k: v for k, v in rec.items()})
                 if u:
@@ -459,7 +472,8 @@ def vytvor_sablonu(path: str | Path, db: Optional[Databaza] = None, params: Opti
         "",
         "Každý hárok zodpovedá jednému typu údajov. Hlavičky nemeňte, poradie riadkov je ľubovoľné.",
         "Učiteľa identifikuje Osobné číslo (ak chýba, Meno a priezvisko).",
-        "Úväzok zadajte ako 0–1 (alebo v %), Podiel obdobia v PP = časť obdobia mimo materskej/rodičovskej (0–1).",
+        "Úväzok zadajte ako 0–1 (alebo v %). Aktívny – vzdelávanie / publikácie / projekty = časť sledovaného obdobia oblasti,"
+        " keď bol učiteľ zamestnancom SPU mimo materskej/rodičovskej dovolenky (0–1, predvolene 1).",
         "Jazyk výučby: SK, EN (aj SK/EN program vyučovaný v angličtine), MOB (mobilitní študenti).",
         "Akademický rok v tvare 2024/2025. Hodiny priamej výučby sa zadávajú za celý akademický rok.",
         "Podiel na publikácii zadajte ako 0–1 (alebo v %).",
@@ -500,7 +514,8 @@ def vytvor_sablonu(path: str | Path, db: Optional[Databaza] = None, params: Opti
 
     for kluc, typ in TYPY.items():
         ws = wb.create_sheet(typ.nazov)
-        for j, s in enumerate(typ.stlpce, start=1):
+        stlpce = [s for s in typ.stlpce if s.v_sablone]
+        for j, s in enumerate(stlpce, start=1):
             c = ws.cell(row=1, column=j, value=s.hlavicka)
             c.fill, c.font = _HLAVICKA_FILL, _HLAVICKA_FONT
             c.alignment = Alignment(wrap_text=True, vertical="center")
@@ -513,7 +528,7 @@ def vytvor_sablonu(path: str | Path, db: Optional[Databaza] = None, params: Opti
             continue
         for obj in getattr(data, kluc):
             row = []
-            for s in typ.stlpce:
+            for s in stlpce:
                 if s.pole in ("osobne_cislo", "meno") and kluc not in ("ucitelia",):
                     u = ucitelia.get(getattr(obj, "ucitel_id", None))
                     row.append(getattr(u, s.pole, "") if u else "")

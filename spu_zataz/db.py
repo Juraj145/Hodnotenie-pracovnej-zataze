@@ -66,6 +66,8 @@ class Databaza:
             for f in fields(cls):
                 if f.name not in existing:
                     cur.execute(f"ALTER TABLE {name} ADD COLUMN {f.name} {_sql_type(f.type)}")
+                    if name == "ucitelia" and f.name.startswith("aktivny_") and "podiel_aktivny" in existing:
+                        cur.execute(f"UPDATE ucitelia SET {f.name} = coalesce(podiel_aktivny, 1.0)")
         self.conn.commit()
 
     # ------------------------------------------------------------ čítanie
@@ -138,6 +140,34 @@ class Databaza:
         self.conn.execute(f"DELETE FROM {tabulka} WHERE id = ?", (id_,))
         if commit:
             self.conn.commit()
+
+    def vloz_s_id(self, obj, commit: bool = False):
+        """Vloží záznam so zachovaním jeho id (načítanie uložených údajov)."""
+        tab = tabulka_pre(obj)
+        d = asdict(obj)
+        cols = ", ".join(d)
+        self.conn.execute(f"INSERT INTO {tab} ({cols}) VALUES ({', '.join('?' * len(d))})", tuple(d.values()))
+        if commit:
+            self.conn.commit()
+
+    def fakulty(self) -> list[tuple[str, int]]:
+        """[(fakulta, počet učiteľov)]"""
+        return [(r[0] or "", r[1]) for r in self.conn.execute(
+            "SELECT coalesce(fakulta, ''), count(*) FROM ucitelia GROUP BY coalesce(fakulta, '') ORDER BY 1")]
+
+    def vymaz_fakultu(self, fakulta: str) -> int:
+        """Vymaže fakultu = všetkých jej učiteľov aj s ich výučbou, prácami, publikáciami a účasťami.
+        Projekty, na ktorých už nie je žiadny učiteľ, sa vymažú tiež. Vráti počet vymazaných učiteľov."""
+        ids = [r[0] for r in self.conn.execute("SELECT id FROM ucitelia WHERE coalesce(fakulta, '') = ?", (fakulta,))]
+        projekty = set()
+        for id_ in ids:
+            projekty |= {r[0] for r in self.conn.execute("SELECT projekt_id FROM ucasti WHERE ucitel_id = ?", (id_,))}
+            self.zmaz("ucitelia", id_, commit=False)
+        for pid in projekty:
+            if not self.conn.execute("SELECT 1 FROM ucasti WHERE projekt_id = ?", (pid,)).fetchone():
+                self.conn.execute("DELETE FROM projekty WHERE id = ?", (pid,))
+        self.conn.commit()
+        return len(ids)
 
     def vymaz_vsetko(self):
         for name in TABULKY:

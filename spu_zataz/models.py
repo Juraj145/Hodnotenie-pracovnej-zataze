@@ -17,10 +17,21 @@ class Ucitel:
     ustav: str = ""
     funkcia: str = ""               # profesor / docent / odborný asistent / lektor
     uvazok: float = 1.0             # prepočítaný stav úväzku 0–1
-    podiel_aktivny: float = 1.0     # podiel sledovaného obdobia v pracovnom pomere (bez materskej/rodičovskej) 0–1
+    podiel_aktivny: float = 1.0     # staršie spoločné pole (do v0.7) – pri importe nastaví všetky tri oblasti
     scopus_id: str = ""
     wos_id: str = ""                # ResearcherID
     orcid: str = ""
+    # Podiel sledovaného obdobia, keď bol učiteľ aktívnym zamestnancom (bez materskej/rodičovskej), 0–1.
+    # Obdobia oblastí sú rôzne (2 akademické roky, 3 roky publikácií, 3 roky projektov), preto po oblastiach.
+    aktivny_vzdelavanie: float = 1.0
+    aktivny_publikacie: float = 1.0
+    aktivny_projekty: float = 1.0
+    poznamka: str = ""
+
+    def aktivita(self, oblast: str) -> float:
+        v = getattr(self, f"aktivny_{oblast}", 1.0)
+        v = 1.0 if v is None else float(v)
+        return min(max(v, 0.0), 1.0)
 
     @property
     def cele_meno(self) -> str:
