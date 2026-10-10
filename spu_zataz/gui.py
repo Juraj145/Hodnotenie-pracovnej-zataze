@@ -96,6 +96,7 @@ class App:
         subor.add_command(label="Načítať výučbu z UIS (rozvrhy a počty študentov)…", command=self.import_uis_vyucba)
         subor.add_command(label="Načítať záverečné práce z UIS (is.uniag.sk/zp)…", command=self.import_uis_zp)
         subor.add_command(label="Načítať projekty z UIS (is.uniag.sk/vv)…", command=self.import_uis_projekty)
+        subor.add_command(label="Načítať publikácie z knižnice SPU / CREPČ…", command=self.import_epca)
         subor.add_command(label="Importovať export z UIS / CREPČ / iný súbor…", command=self.import_mapovanie)
         subor.add_command(label="Načítať publikácie zo Scopus / Web of Science…", command=self.import_biblio)
         subor.add_separator()
@@ -174,7 +175,7 @@ class App:
         ttk.Button(rychly, text="📅 Výučba z UIS", command=self.import_uis_vyucba).pack(side="left", padx=(4, 0))
         ttk.Button(rychly, text="🎓 Záverečné práce z UIS", command=self.import_uis_zp).pack(side="left", padx=(4, 0))
         ttk.Button(rychly, text="🔬 Projekty z UIS", command=self.import_uis_projekty).pack(side="left", padx=(4, 0))
-        ttk.Button(rychly, text="🔀 Import z UIS / CREPČ", command=self.import_mapovanie).pack(side="left", padx=4)
+        ttk.Button(rychly, text="📚 Publikácie z UIS / CREPČ", command=self.import_epca).pack(side="left", padx=4)
         ttk.Button(rychly, text="🌐 Scopus / WoS", command=self.import_biblio).pack(side="left", padx=4)
         ttk.Button(rychly, text="▶ Vypočítať", style="Accent.TButton",
                    command=lambda: (self.prepocitaj(), self.nb.select(1))).pack(side="right")
@@ -631,6 +632,19 @@ class App:
     def import_mapovanie(self):
         from .gui_dialogy import ImportDialog
         ImportDialog(self.root, self.db, on_done=lambda: (self.obnov_vsetko(), self.navrhni_obdobie()))
+
+    def import_epca(self):
+        from .gui_dialogy import EPCADialog
+        try:
+            roky = self._obdobie_z_poli().roky_publikacie
+        except ValueError:
+            roky = self.obdobie.roky_publikacie
+        if not roky:
+            import datetime as dt
+            r = dt.date.today().year - 1
+            roky = [r - 2, r - 1, r]
+        EPCADialog(self.root, self.db, roky, on_done=lambda: (self.obnov_vsetko(), self.navrhni_obdobie()),
+                   otvor_subor=self.import_mapovanie)
 
     def import_uis_zamestnanci(self):
         from .gui_dialogy import UISZamestnanciDialog

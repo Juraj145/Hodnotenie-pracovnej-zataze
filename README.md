@@ -35,12 +35,13 @@ Na zálohu alebo odovzdanie údajov kolegovi slúži *Súbor → Exportovať vš
 | Učitelia a ústavy z UIS | *Súbor → Načítať učiteľov a ústavy z UIS* – vyberiete fakultu, označíte ústavy a program z verejného zoznamu zamestnancov na is.uniag.sk založí učiteľov s titulmi, funkciou a priradeným ústavom (ID osoby v UIS sa použije ako osobné číslo). Úväzok doplníte. |
 | Záverečné práce z UIS | *Súbor → Načítať záverečné práce z UIS* – pre zvolenú fakultu a akademické roky sledovaného obdobia načíta z is.uniag.sk/zp obhájené bakalárske, diplomové a dizertačné práce a priradí ich vedúcim v databáze. |
 | Projekty z UIS | *Súbor → Načítať projekty z UIS* – pre fakultu alebo ústav a kalendárne roky načíta z is.uniag.sk/vv riešené a ukončené externé projekty (pozn. 8 pokynu), zaradí ich do kategórií (zmeníte dvojklikom) a priradí učiteľom: garant = zodpovedný riešiteľ, riešiteľ / metodický riešiteľ = riešiteľ. Sumu pripísanú SPU a vykázané hodiny verejná časť UIS neuvádza – doplníte ich na karte Projekty, resp. importom „Účasť na projektoch“. |
+| Publikácie z knižnice SPU / CREPČ | tlačidlo **📚 Publikácie z UIS / CREPČ** (*Súbor → Načítať publikácie z knižnice SPU / CREPČ*) – pre všetkých učiteľov, ústav alebo jedného učiteľa a roky vykázania načíta z evidencie publikačnej činnosti knižnice SPU (arl4.library.sk, EPCA; záznamy s identifikátorom CREPČ) vedecké výstupy V1–V3: kategóriu podľa tab. 3, kvartil podľa AIS a podiel autora. Autor sa určí podľa ID osoby v UIS, inak podľa mena. Prihlásenie netreba. Tie isté publikácie načítané skôr zo Scopus / WoS alebo ručne (zhoda DOI, WoS UT, Scopus EID alebo názvu) sa vymažú a nahradia záznamom knižnice s doplneným podielom. |
 | Ručne | karta **Vstupné údaje** – tlačidlá Pridať / Upraviť / Vymazať (dvojklik = úprava) |
 | Excel šablóna | *Súbor → Vytvoriť prázdnu Excel šablónu*, vyplniť, *Importovať vyplnenú šablónu* |
 | Export z UIS, CREPČ, Sofia | *Súbor → Importovať export z UIS / CREPČ…* – vyberiete súbor (XLSX/CSV), typ údajov a priradíte stĺpce. Mapovanie si uložíte ako profil a nabudúce ho len zvolíte. |
 | Scopus / Web of Science | *Súbor → Načítať publikácie zo Scopus / WoS* – potrebný API kľúč (*Nastavenia → API kľúče*) a Scopus Author ID / ResearcherID / ORCID pri učiteľovi |
 
-UIS ani CREPČ nemajú verejné rozhranie na priame pripojenie, preto program číta ich **exporty** (XLSX/CSV)
+Pre ostatné údaje z UIS a CREPČ, ktoré nemajú verejné rozhranie, program číta ich **exporty** (XLSX/CSV)
 a stĺpce si priradíte raz. Pri opakovanom importe je predvolene zapnuté nahradenie záznamov za roky v súbore,
 takže nevznikajú duplicity.
 
@@ -84,6 +85,7 @@ Všetky číselné hodnoty sú v *Nastavenia → Parametre metodiky* a dajú sa 
 | doktorandské predmety | UIS k nim neuvádza počet študentov – započítajú sa iba hodiny | – |
 | projekt bez vykázaných hodín | suma sa rozdelí rovným dielom medzi riešiteľov projektu v UIS (zodpovedný riešiteľ výskumného projektu 2×); výsledok je označený ako odhad | – |
 | interné granty (GA SPU a pod.), mobilitné a štipendijné programy | nezapočítavajú sa (pozn. 8 uvádza iba externé zdroje) | kategória druhu v okne Projekty z UIS |
+| publikácie z knižnice | rok = rok vykázania (pole 985); V1 monografia = typ MON, ostatné V1 (editovaná kniha, zborník) = editovaná kniha; V2/V3 indexované = indexovanie WoS alebo Scopus; kvartil AIS z metrík časopisu (T16 $D) za rok vydania; ak podiel chýba, 1 / počet autorov; výstupy O, P, I sa nezapočítavajú | úprava dvojklikom pred uložením |
 | štandardizované rezíduá | rezíduum / smerodajná odchýlka rezíduí (n − 1) | – |
 
 ## Pre správcu programu
@@ -117,6 +119,7 @@ spu_zataz/models.py         dátové záznamy
 spu_zataz/db.py             SQLite databáza
 spu_zataz/importy.py        Excel šablóna, import UIS/CREPČ s mapovaním stĺpcov
 spu_zataz/biblio.py         Scopus a Web of Science API
+spu_zataz/epca.py           publikácie z knižnice SPU (EPCA / CREPČ), odstránenie duplicít
 spu_zataz/vystupy.py        export výsledkov
 spu_zataz/updater.py        aktualizácie z GitHub Releases
 spu_zataz/gui*.py           grafické rozhranie (tkinter)

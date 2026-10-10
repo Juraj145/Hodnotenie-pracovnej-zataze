@@ -11,7 +11,7 @@ import webbrowser
 from pathlib import Path
 from tkinter import filedialog, messagebox, scrolledtext, simpledialog, ttk
 
-from . import biblio, config, importy, updater
+from . import biblio, config, epca, importy, updater
 from .db import Databaza
 from .gui_common import Formular, Tabulka, fmt
 from .models import Data, Publikacia
@@ -301,7 +301,8 @@ class BiblioDialog(tk.Toplevel):
         exist = self._existujuce_id()
         riadky = []
         for i, (uid, p) in enumerate(self.najdene):
-            dup = (uid, (p.identifikator or "").lower()) in exist or (uid, (p.doi or "").lower()) in exist
+            dup = ((uid, (p.identifikator or "").lower()) in exist or (uid, (p.doi or "").lower()) in exist
+                   or epca.je_v_kniznici(self.data.publikacie, uid, p.doi, p.identifikator, p.nazov, p.rok))
             riadky.append((i, [meno.get(uid, "?"), p.rok, p.nazov, p.casopis, p.typ, p.kategoria, p.kvartil,
                                fmt(p.podiel, 2), p.zdroj, "áno" if dup else ""], ("dup",) if dup else ()))
         self.tab.nastav(riadky)
@@ -1202,3 +1203,184 @@ class UISVyucbaDialog(tk.Toplevel):
         self.on_done()
         self.zobraz()
         messagebox.showinfo("Výučba uložená", res.sprava(), parent=self)
+
+
+# ====================================================================== publikácie z knižnice SPU / CREPČ
+class EPCADialog(tk.Toplevel):
+    """Publikácie učiteľov z evidencie publikačnej činnosti knižnice SPU (záznamy CREPČ) – čl. 4 pokynu."""
+
+    def __init__(self, master, db: Databaza, roky: list[int], on_done, otvor_subor=None):
+        from . import epca
+        self.epca = epca
+        super().__init__(master)
+        self.title("Publikácie z knižnice SPU / CREPČ")
+        self.geometry("1200x720")
+        self.transient(master)
+        self.db, self.on_done = db, on_done
+        self.q: queue.Queue = queue.Queue()
+        self.najdene: list = []
+        self.chyby: list[str] = []
+        self.data = db.nacitaj_vsetko()
+
+        top = ttk.Frame(self, padding=10)
+        top.pack(fill="x")
+        ttk.Label(top, text="Učitelia:").grid(row=0, column=0, sticky="w")
+        ustavy = sorted({u.ustav for u in self.data.ucitelia if u.ustav})
+        self.rozsahy = [("Všetci učitelia v databáze", None)] + [(f"Ústav: {x}", ("ustav", x)) for x in ustavy] + \
+            [(f"Učiteľ: {u.cele_meno}", ("id", u.id)) for u in sorted(self.data.ucitelia, key=lambda u: u.meno)]
+        self.cb = ttk.Combobox(top, state="readonly", width=60, values=[t for t, _ in self.rozsahy])
+        self.cb.current(0)
+        self.cb.grid(row=0, column=1, sticky="w")
+        ttk.Label(top, text="Roky vykázania:").grid(row=0, column=2, sticky="e", padx=(16, 4))
+        self.var_roky = tk.StringVar(value=", ".join(map(str, roky)))
+        ttk.Entry(top, textvariable=self.var_roky, width=20).grid(row=0, column=3, sticky="w")
+        ttk.Button(top, text="1 🔎 Načítať z knižnice", style="Accent.TButton", command=self.nacitaj).grid(row=0, column=4, padx=10)
+        if otvor_subor:
+            ttk.Button(top, text="Import zo súboru (XLSX/CSV)…",
+                       command=lambda: (self.destroy(), otvor_subor())).grid(row=0, column=5)
+        ttk.Label(top, foreground="#555", wraplength=1160, justify="left", text=(
+            "Zdroj: evidencia publikačnej činnosti Slovenskej poľnohospodárskej knižnice (arl4.library.sk, EPCA), "
+            "z ktorej sa záznamy odovzdávajú do CREPČ. Započítajú sa vedecké výstupy V1–V3 vykázané v zadaných rokoch "
+            "(čl. 4): kategória podľa tab. 3 (V2/V3 indexované = záznam má indexovanie WoS alebo Scopus), kvartil "
+            "podľa AIS za rok vydania a podiel autora z CREPČ. Autor sa určí podľa ID osoby v UIS, inak podľa mena. "
+            "Rovnaké publikácie načítané skôr zo Scopus / WoS (alebo ručne) sa pri uložení vymažú a nahradia "
+            "záznamom knižnice s doplneným podielom. Dvojklik = úprava pred uložením.")).grid(
+            row=1, column=0, columnspan=6, sticky="w", pady=(6, 0))
+
+        self.tab = Tabulka(self, [("uc", "Učiteľ", 160), ("rok", "Rok", 45), ("na", "Názov", 300),
+                                  ("crepc", "CREPČ", 70), ("kat", "Kategória (tab. 3)", 210), ("kv", "Kvartil AIS", 70),
+                                  ("pod", "Podiel", 55), ("idx", "Indexované", 90), ("dup", "Duplicita v DB", 140)],
+                           on_double=self.uprav)
+        self.tab.pack(fill="both", expand=True, padx=10, pady=6)
+        self.tab.tree.tag_configure("dup", foreground="#8a4b00")
+        self.tab.tree.tag_configure("odhad", foreground="#1f4e9e")
+        dole = ttk.Frame(self, padding=10)
+        dole.pack(fill="x")
+        self.pb = ttk.Progressbar(dole, length=200, mode="determinate")
+        self.pb.pack(side="left")
+        self.lbl = ttk.Label(dole, text="Vyberte učiteľov a roky a načítajte publikácie.")
+        self.lbl.pack(side="left", padx=8)
+        ttk.Button(dole, text="Zavrieť", command=self.destroy).pack(side="right")
+        self.btn_uloz = ttk.Button(dole, text="2 💾 Uložiť a nahradiť duplicity", style="Accent.TButton",
+                                   command=self.uloz, state="disabled")
+        self.btn_uloz.pack(side="right", padx=6)
+        _centruj(self, master)
+
+    def _roky(self) -> list[int]:
+        out = []
+        for x in self.var_roky.get().replace(";", ",").split(","):
+            x = x.strip()
+            if "-" in x:
+                a, b = x.split("-", 1)
+                out.extend(range(int(a), int(b) + 1))
+            elif x:
+                out.append(int(x))
+        return sorted(set(out))
+
+    def _ucitelia(self):
+        rozsah = self.rozsahy[self.cb.current()][1]
+        if rozsah is None:
+            return list(self.data.ucitelia)
+        druh, hodnota = rozsah
+        return [u for u in self.data.ucitelia if (u.ustav if druh == "ustav" else u.id) == hodnota]
+
+    def nacitaj(self):
+        try:
+            roky = self._roky()
+        except ValueError:
+            roky = []
+        ucitelia = self._ucitelia()
+        if not roky or not ucitelia:
+            messagebox.showwarning("Knižnica SPU", "Zadajte roky (napr. 2023, 2024, 2025) a vyberte učiteľov "
+                                                   "(učiteľov načítate tlačidlom Učitelia z UIS).", parent=self)
+            return
+        self.roky = roky
+        self.btn_uloz.config(state="disabled")
+        self.pb["maximum"], self.pb["value"] = len(ucitelia), 0
+
+        def praca():
+            vysl, chyby, cache = [], [], {}
+            for i, u in enumerate(ucitelia, 1):
+                self.q.put(("p", i, u.meno))
+                try:
+                    vysl.extend(self.epca.publikacie_ucitela(u, roky, cache))
+                except self.epca.EpcaChyba as e:
+                    chyby.append(f"{u.meno}: {e}")
+                    if len(chyby) >= 3 and not vysl:
+                        break
+                except Exception as e:  # noqa: BLE001
+                    chyby.append(f"{u.meno}: {e}")
+            self.q.put(("done", vysl, chyby))
+
+        threading.Thread(target=praca, daemon=True).start()
+        self._poll()
+
+    def _poll(self):
+        try:
+            while True:
+                druh, a, b = self.q.get_nowait()
+                if druh == "p":
+                    self.pb["value"] = a
+                    self.lbl.config(text=f"Hľadám v knižnici: {b} ({a} / {int(self.pb['maximum'])})")
+                    continue
+                self.najdene, self.chyby = a, b
+                self.zobraz()
+                if self.chyby:
+                    messagebox.showwarning("Knižnica SPU", "\n".join(self.chyby[:15]), parent=self)
+                return
+        except queue.Empty:
+            pass
+        if self.winfo_exists():
+            self.after(200, self._poll)
+
+    def _duplicity(self, n) -> list:
+        return [p for p in self.data.publikacie if p.ucitel_id == n.ucitel_id and p.zdroj != self.epca.ZDROJ
+                and self.epca.je_duplicita(p, n.zaznam)]
+
+    def zobraz(self):
+        riadky, ndup = [], 0
+        for i, n in enumerate(self.najdene):
+            dup = self._duplicity(n)
+            ndup += len(dup)
+            z = n.zaznam
+            tagy = ("dup",) if dup else (("odhad",) if n.podiel_odhad else ())
+            riadky.append((str(i), [n.ucitel, z.rok, z.nazov, z.kategoria + ("/" + z.typ if z.typ else ""), n.kategoria,
+                                    n.kvartil, fmt(n.podiel, 2) + (" *" if n.podiel_odhad else ""),
+                                    ", ".join(sorted(z.indexovane & {"WOS", "SCOPUS"})),
+                                    ", ".join(sorted({p.zdroj or "ručne" for p in dup}))], tagy))
+        self.tab.nastav(riadky)
+        uc = len({n.ucitel_id for n in self.najdene})
+        self.lbl.config(text=f"Nájdených {len(self.najdene)} vedeckých publikácií (V1–V3) pre {uc} učiteľov; "
+                             f"duplicít v databáze: {ndup}." + ("  * podiel v CREPČ chýba, použitý 1/počet autorov"
+                                                               if any(n.podiel_odhad for n in self.najdene) else ""))
+        self.btn_uloz.config(state="normal" if self.najdene else "disabled")
+
+    def uprav(self):
+        sel = self.tab.vybrane()
+        if not sel:
+            return
+        n = self.najdene[int(sel[0])]
+
+        def ok(h):
+            if not (0 < h["podiel"] <= 1):
+                return "Podiel zadajte v rozsahu 0–1."
+            n.kategoria, n.kvartil, n.podiel, n.podiel_odhad = h["kategoria"], h["kvartil"], h["podiel"], False
+            self.zobraz()
+            self.tab.tree.selection_set(sel)
+            return None
+        Formular(self, "Upraviť pred uložením", [
+            ("kategoria", "Kategória (tab. 3)", "combo_strict", config.KATEGORIE_PUBLIKACII),
+            ("kvartil", "Kvartil (podľa AIS)", "combo_strict", config.KVARTILY),
+            ("podiel", "Podiel autora (0–1)", "float", None)],
+            {"kategoria": n.kategoria, "kvartil": n.kvartil, "podiel": n.podiel}, ok)
+
+    def uloz(self):
+        try:
+            res = self.epca.uloz(self.db, self.najdene, self.roky)
+        except Exception as e:  # noqa: BLE001
+            messagebox.showerror("Uloženie zlyhalo", str(e), parent=self)
+            return
+        self.data = self.db.nacitaj_vsetko()
+        self.on_done()
+        self.zobraz()
+        messagebox.showinfo("Knižnica SPU / CREPČ", res.sprava(), parent=self)
